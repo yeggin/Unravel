@@ -14,3 +14,97 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * Sends the user's reflection and any optional structured fields to the AI insight guide and returns a structured analysis.
+ * @summary Analyze a user's emotional reflection
+ */
+
+export const analyzeReflectionBodyIntensityMax = 5;
+
+export const AnalyzeReflectionBody = zod.object({
+  reflection: zod
+    .string()
+    .min(1)
+    .describe("Free-text account of what happened and how the person feels."),
+  intensity: zod
+    .number()
+    .min(1)
+    .max(analyzeReflectionBodyIntensityMax)
+    .nullish(),
+  relationship_context: zod
+    .enum([
+      "romantic partner",
+      "family member",
+      "friend",
+      "coworker or boss",
+      "myself",
+      "no specific person",
+    ])
+    .nullish(),
+  body_sensations: zod
+    .array(
+      zod.enum([
+        "tight chest",
+        "heavy limbs",
+        "restless / can't sit still",
+        "numb or zoned out",
+        "jaw or shoulder tension",
+        "racing thoughts",
+        "stomach dropping",
+        "hard to breathe",
+        "feel like crying but can't",
+        "physically fine, just confused",
+      ]),
+    )
+    .nullish(),
+  attachment_style: zod
+    .enum(["secure", "anxious", "avoidant", "disorganized"])
+    .nullish(),
+  attachment_source: zod
+    .enum(["self-reported", "quiz-inferred", "text-inferred"])
+    .nullish(),
+  family_patterns: zod
+    .array(
+      zod.enum([
+        "emotionally distant parent",
+        "high-pressure / achievement-focused home",
+        "I was the peacekeeper",
+        "unpredictable or unstable home environment",
+        "love felt conditional on my behavior",
+        "I learned not to show weakness",
+        "a parent leaned on me emotionally",
+        "conflict was avoided at all costs",
+        "I felt invisible or unheard",
+      ]),
+    )
+    .nullish(),
+  mbti: zod.string().nullish(),
+});
+
+export const AnalyzeReflectionResponse = zod.object({
+  primary_emotion: zod.string(),
+  secondary_emotion: zod.string().nullish(),
+  emotion_color: zod.string(),
+  emotion_metaphor: zod.string(),
+  nervous_system_state: zod.string(),
+  headline: zod.string(),
+  why: zod.object({
+    surface: zod.string(),
+    deeper: zod.string(),
+    root: zod.string(),
+  }),
+  reframe: zod.string(),
+  next_steps: zod.array(
+    zod.object({
+      action: zod.string(),
+      framework: zod.string(),
+      description: zod.string(),
+      timeframe: zod.string(),
+    }),
+  ),
+  affirmation: zod.string(),
+  attachment_inferred_note: zod.string().nullish(),
+  therapy_nudge: zod.boolean(),
+  therapy_nudge_reason: zod.string().nullish(),
+});

@@ -6,4 +6,13 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./analyzeRequest";
+export * from "./analyzeResponse";
+export * from "./attachmentSource";
+export * from "./attachmentStyle";
+export * from "./bodySensation";
+export * from "./familyPattern";
 export * from "./healthStatus";
+export * from "./insightWhy";
+export * from "./nextStep";
+export * from "./relationshipContext";

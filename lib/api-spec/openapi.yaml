@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: insight
+    description: Emotional insight analysis
 paths:
   /healthz:
     get:
@@ -24,6 +26,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /analyze:
+    post:
+      operationId: analyzeReflection
+      tags: [insight]
+      summary: Analyze a user's emotional reflection
+      description: Sends the user's reflection and any optional structured fields to the AI insight guide and returns a structured analysis.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeRequest"
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyzeResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +54,160 @@ components:
           type: string
       required:
         - status
-
+    RelationshipContext:
+      type: string
+      enum:
+        - romantic partner
+        - family member
+        - friend
+        - coworker or boss
+        - myself
+        - no specific person
+    BodySensation:
+      type: string
+      enum:
+        - tight chest
+        - heavy limbs
+        - restless / can't sit still
+        - numb or zoned out
+        - jaw or shoulder tension
+        - racing thoughts
+        - stomach dropping
+        - hard to breathe
+        - feel like crying but can't
+        - physically fine, just confused
+    AttachmentStyle:
+      type: string
+      enum:
+        - secure
+        - anxious
+        - avoidant
+        - disorganized
+    AttachmentSource:
+      type: string
+      enum:
+        - self-reported
+        - quiz-inferred
+        - text-inferred
+    FamilyPattern:
+      type: string
+      enum:
+        - emotionally distant parent
+        - high-pressure / achievement-focused home
+        - I was the peacekeeper
+        - unpredictable or unstable home environment
+        - love felt conditional on my behavior
+        - I learned not to show weakness
+        - a parent leaned on me emotionally
+        - conflict was avoided at all costs
+        - I felt invisible or unheard
+    AnalyzeRequest:
+      type: object
+      required:
+        - reflection
+      properties:
+        reflection:
+          type: string
+          minLength: 1
+          description: Free-text account of what happened and how the person feels.
+        intensity:
+          type: integer
+          minimum: 1
+          maximum: 5
+          nullable: true
+        relationship_context:
+          $ref: "#/components/schemas/RelationshipContext"
+          nullable: true
+        body_sensations:
+          type: array
+          items:
+            $ref: "#/components/schemas/BodySensation"
+          nullable: true
+        attachment_style:
+          $ref: "#/components/schemas/AttachmentStyle"
+          nullable: true
+        attachment_source:
+          $ref: "#/components/schemas/AttachmentSource"
+          nullable: true
+        family_patterns:
+          type: array
+          items:
+            $ref: "#/components/schemas/FamilyPattern"
+          nullable: true
+        mbti:
+          type: string
+          nullable: true
+    NextStep:
+      type: object
+      required:
+        - action
+        - framework
+        - description
+        - timeframe
+      properties:
+        action:
+          type: string
+        framework:
+          type: string
+        description:
+          type: string
+        timeframe:
+          type: string
+    InsightWhy:
+      type: object
+      required:
+        - surface
+        - deeper
+        - root
+      properties:
+        surface:
+          type: string
+        deeper:
+          type: string
+        root:
+          type: string
+    AnalyzeResponse:
+      type: object
+      required:
+        - primary_emotion
+        - emotion_color
+        - emotion_metaphor
+        - nervous_system_state
+        - headline
+        - why
+        - reframe
+        - next_steps
+        - affirmation
+        - therapy_nudge
+      properties:
+        primary_emotion:
+          type: string
+        secondary_emotion:
+          type: string
+          nullable: true
+        emotion_color:
+          type: string
+        emotion_metaphor:
+          type: string
+        nervous_system_state:
+          type: string
+        headline:
+          type: string
+        why:
+          $ref: "#/components/schemas/InsightWhy"
+        reframe:
+          type: string
+        next_steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/NextStep"
+        affirmation:
+          type: string
+        attachment_inferred_note:
+          type: string
+          nullable: true
+        therapy_nudge:
+          type: boolean
+        therapy_nudge_reason:
+          type: string
+          nullable: true

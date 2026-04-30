@@ -8,3 +8,113 @@
 export interface HealthStatus {
   status: string;
 }
+
+export type RelationshipContext =
+  (typeof RelationshipContext)[keyof typeof RelationshipContext];
+
+export const RelationshipContext = {
+  romantic_partner: "romantic partner",
+  family_member: "family member",
+  friend: "friend",
+  coworker_or_boss: "coworker or boss",
+  myself: "myself",
+  no_specific_person: "no specific person",
+} as const;
+
+export type BodySensation = (typeof BodySensation)[keyof typeof BodySensation];
+
+export const BodySensation = {
+  tight_chest: "tight chest",
+  heavy_limbs: "heavy limbs",
+  "restless_/_can't_sit_still": "restless / can't sit still",
+  numb_or_zoned_out: "numb or zoned out",
+  jaw_or_shoulder_tension: "jaw or shoulder tension",
+  racing_thoughts: "racing thoughts",
+  stomach_dropping: "stomach dropping",
+  hard_to_breathe: "hard to breathe",
+  "feel_like_crying_but_can't": "feel like crying but can't",
+  "physically_fine,_just_confused": "physically fine, just confused",
+} as const;
+
+export type AttachmentStyle =
+  (typeof AttachmentStyle)[keyof typeof AttachmentStyle];
+
+export const AttachmentStyle = {
+  secure: "secure",
+  anxious: "anxious",
+  avoidant: "avoidant",
+  disorganized: "disorganized",
+} as const;
+
+export type AttachmentSource =
+  (typeof AttachmentSource)[keyof typeof AttachmentSource];
+
+export const AttachmentSource = {
+  "self-reported": "self-reported",
+  "quiz-inferred": "quiz-inferred",
+  "text-inferred": "text-inferred",
+} as const;
+
+export type FamilyPattern = (typeof FamilyPattern)[keyof typeof FamilyPattern];
+
+export const FamilyPattern = {
+  emotionally_distant_parent: "emotionally distant parent",
+  "high-pressure_/_achievement-focused_home":
+    "high-pressure / achievement-focused home",
+  I_was_the_peacekeeper: "I was the peacekeeper",
+  unpredictable_or_unstable_home_environment:
+    "unpredictable or unstable home environment",
+  love_felt_conditional_on_my_behavior: "love felt conditional on my behavior",
+  I_learned_not_to_show_weakness: "I learned not to show weakness",
+  a_parent_leaned_on_me_emotionally: "a parent leaned on me emotionally",
+  conflict_was_avoided_at_all_costs: "conflict was avoided at all costs",
+  I_felt_invisible_or_unheard: "I felt invisible or unheard",
+} as const;
+
+export interface AnalyzeRequest {
+  /**
+   * Free-text account of what happened and how the person feels.
+   * @minLength 1
+   */
+  reflection: string;
+  /**
+   * @minimum 1
+   * @maximum 5
+   */
+  intensity?: number | null;
+  relationship_context?: RelationshipContext | null;
+  body_sensations?: BodySensation[] | null;
+  attachment_style?: AttachmentStyle | null;
+  attachment_source?: AttachmentSource | null;
+  family_patterns?: FamilyPattern[] | null;
+  mbti?: string | null;
+}
+
+export interface NextStep {
+  action: string;
+  framework: string;
+  description: string;
+  timeframe: string;
+}
+
+export interface InsightWhy {
+  surface: string;
+  deeper: string;
+  root: string;
+}
+
+export interface AnalyzeResponse {
+  primary_emotion: string;
+  secondary_emotion?: string | null;
+  emotion_color: string;
+  emotion_metaphor: string;
+  nervous_system_state: string;
+  headline: string;
+  why: InsightWhy;
+  reframe: string;
+  next_steps: NextStep[];
+  affirmation: string;
+  attachment_inferred_note?: string | null;
+  therapy_nudge: boolean;
+  therapy_nudge_reason?: string | null;
+}
