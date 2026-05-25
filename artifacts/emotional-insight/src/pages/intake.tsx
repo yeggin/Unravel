@@ -185,7 +185,7 @@ export function IntakePage() {
                 fontFamily: "var(--app-font-heading)",
                 fontSize: "1.25rem",
                 color: "#1d2e48",
-                lineHeight: 1.5,
+                lineHeight: 1.35,
                 margin: 0,
               }}
             >
@@ -259,10 +259,14 @@ export function IntakePage() {
                 style={{
                   fontFamily: "'Inter', sans-serif",
                   fontWeight: 500,
-                  fontSize: "1.25rem",
+                  fontSize: "1.125rem",
                   color: BLUE,
                   lineHeight: 1,
                   userSelect: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "1.125rem",
                 }}
               >
                 +
@@ -272,7 +276,7 @@ export function IntakePage() {
                   fontFamily: "var(--app-font-body)",
                   fontSize: "1.125rem",
                   color: BLUE,
-                  lineHeight: 1.4,
+                  lineHeight: 1,
                 }}
               >
                 Want to add more context for a deeper analysis?
@@ -361,7 +365,7 @@ export function IntakePage() {
                 <div
                   style={{
                     fontFamily: "var(--app-font-heading)",
-                    fontSize: "4rem",
+                    fontSize: "3.875rem",
                     lineHeight: 1,
                     color: state.intensity ? BLUE : "#d1dce8",
                     marginBottom: 6,
@@ -613,7 +617,19 @@ export function IntakePage() {
               <input
                 type="text"
                 value={state.mbti ?? ""}
-                onChange={(e) => update("mbti", e.target.value)}
+                onChange={(e) => {
+                  // Validate MBTI as user types: only allow valid letter per position
+                  // Pos 0: E/I, Pos 1: N/S, Pos 2: T/F, Pos 3: J/P
+                  const ALLOWED = ["EI", "NS", "TF", "JP"];
+                  const raw = e.target.value.toUpperCase();
+                  let filtered = "";
+                  for (let i = 0; i < raw.length && i < 4; i++) {
+                    if (ALLOWED[i].includes(raw[i])) {
+                      filtered += raw[i];
+                    }
+                  }
+                  update("mbti", filtered);
+                }}
                 placeholder="e.g. INFJ"
                 maxLength={4}
                 data-testid="input-mbti"
@@ -621,7 +637,7 @@ export function IntakePage() {
                   textTransform: "uppercase",
                   fontSize: "0.875rem",
                   letterSpacing: "0.15em",
-                  border: "1px solid #d1dce8",
+                  border: `1px solid ${state.mbti && state.mbti.length === 4 ? BLUE : "#d1dce8"}`,
                   borderRadius: 6,
                   padding: "8px 16px",
                   width: 160,
@@ -629,6 +645,7 @@ export function IntakePage() {
                   fontFamily: "var(--app-font-body)",
                   background: "white",
                   textAlign: "center",
+                  transition: "border-color 0.15s",
                 }}
               />
             </div>
@@ -670,7 +687,7 @@ function StepFrame({ step, title, subtitle, children, onBack, onNext, onSkip, ne
         <div style={{ flex: 1 }}>{children}</div>
         <div style={{ marginTop: 28, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <button type="button" className="nav-btn-text nav-btn-back" onClick={onBack} disabled={!onBack}>
-            ← Back
+            {"\u2039"} Back
           </button>
           <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
             {onSkip && (

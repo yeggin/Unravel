@@ -183,8 +183,8 @@
 .intensity-slider [role="slider"] {
   transform: rotate(45deg);
   border-radius: 0 !important;   /* sharp corners = diamond shape */
-  width: 14px !important;
-  height: 14px !important;
+  width: 10px !important;
+  height: 10px !important;
   border: none !important;
   box-shadow: none !important;
   background: #0088ff !important;
