@@ -19,7 +19,7 @@ import type { ReactNode, CSSProperties } from "react";
 
 const TOTAL_BEADS = 7;
 const BLUE = "#0088ff";
-const DOT_R = 5; // radius → 10×10px circles (user request: 10px)
+const DOT_R = 3; // radius → 6×6px circles
 
 interface AppFrameProps {
   children: ReactNode;
@@ -242,43 +242,80 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
             flexDirection: "column",
           }}
         >
-          {/* ── Left vertical — extends 19px above frame top ── */}
-          <VLine style={{ left: 0, top: -19, bottom: 0 }} />
-
           {/*
-           * ── Top-left short segment ──
-           * Figma: Line4 starts at x=221.04 (frame left = 228.31) → starts 7.27px LEFT of frame.
-           * Width = 101.79px → left: -7, width: 102.
+           * ── Left vertical — extends 19px above, gap at 4/5 (80%) from top ──
+           * Uses CSS gradient to create a visible break at 80%.
            */}
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              width: 1,
+              left: 0,
+              top: -19,
+              bottom: 0,
+              background: `linear-gradient(to bottom, ${BLUE} 0%, ${BLUE} calc(80% - 4px), transparent calc(80% - 4px), transparent calc(80% + 4px), ${BLUE} calc(80% + 4px), ${BLUE} 100%)`,
+              pointerEvents: "none",
+            }}
+          />
+
+          {/* ── Top-left short segment — starts 7px LEFT of frame ── */}
           <HLine style={{ left: -7, top: 0, width: 102 }} />
 
+          {/* ── Dot on the short segment — on the line (center at ~45px from frame left) ── */}
+          <Dot dataDot="top-left" style={{ left: 42, top: -DOT_R }} />
+
           {/*
-           * ── Ellipse5 dot ──
-           * Figma: Ellipse5 center at x=332.27 absolute, frame left=228.31
-           * → center at 332.27-228.31 = 103.96px from frame left (scaled ≈ 106px in 1000px frame)
-           * left edge = center - DOT_R = 106 - 5 = 101px.
+           * ── Top-right long segment — extends 7px PAST the right vertical ──
            */}
-          <Dot dataDot="top-left" style={{ left: 101, top: -DOT_R }} />
+          <HLine style={{ left: 120, top: 0, right: -7 }} />
 
-          {/* ── Top-right long segment (starts at 120px) ── */}
-          <HLine style={{ left: 120, top: 0, right: 0 }} />
+          {/*
+           * ── Right vertical — gap at 2/5 (40%) from top, extended 15px below ──
+           */}
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              width: 1,
+              right: 0,
+              top: -19,
+              bottom: -15,
+              background: `linear-gradient(to bottom, ${BLUE} 0%, ${BLUE} calc(40% - 4px), transparent calc(40% - 4px), transparent calc(40% + 4px), ${BLUE} calc(40% + 4px), ${BLUE} 100%)`,
+              pointerEvents: "none",
+            }}
+          />
 
-          {/* ── Right vertical — also extends 19px above ── */}
-          <VLine style={{ right: 0, top: -19, bottom: 0 }} />
+          {/*
+           * ── Top-right dots — upper dot intersects both horizontal AND vertical lines ──
+           * Upper: center at (right:0, top:0) = the corner intersection → right:-DOT_R, top:-DOT_R
+           * Lower: ~16px below upper
+           */}
+          <Dot dataDot="top-right-upper" style={{ right: -DOT_R, top: -DOT_R }} />
+          <Dot dataDot="top-right-lower" style={{ right: -DOT_R, top: DOT_R * 3 + 4 }} />
 
-          {/* ── Group11 dots — 2 stacked at top of right vertical ── */}
-          <Dot dataDot="top-right-upper" style={{ right: -DOT_R, top: -(19 + DOT_R) }} />
-          <Dot dataDot="top-right-lower" style={{ right: -DOT_R, top: -DOT_R }} />
+          {/*
+           * ── Bottom horizontal — extends 7px past BOTH verticals, gap at 3/5 (60%) from left ──
+           */}
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              height: 1,
+              left: -7,
+              right: -7,
+              bottom: 0,
+              background: `linear-gradient(to right, ${BLUE} 0%, ${BLUE} calc(60% - 4px), transparent calc(60% - 4px), transparent calc(60% + 4px), ${BLUE} calc(60% + 4px), ${BLUE} 100%)`,
+              pointerEvents: "none",
+            }}
+          />
 
-          {/* ── Bottom horizontal ── */}
-          <HLine style={{ left: 0, right: 0, bottom: 0 }} />
+          {/* ── Bottom dots — left pair closer together, right moved slightly right ── */}
+          <Dot dataDot="bottom-left-1" style={{ left: 18, bottom: -DOT_R }} />
+          <Dot dataDot="bottom-left-2" style={{ left: 30, bottom: -DOT_R }} />
+          <Dot dataDot="bottom-right"  style={{ left: "82%", bottom: -DOT_R }} />
 
-          {/* ── Bottom dots (Group10: 2 near-left, 1 right) ── */}
-          <Dot dataDot="bottom-left-1" style={{ left: "3%", bottom: -DOT_R }} />
-          <Dot dataDot="bottom-left-2" style={{ left: "6%", bottom: -DOT_R }} />
-          <Dot dataDot="bottom-right"  style={{ left: "77%", bottom: -DOT_R }} />
-
-          {/* ── Bottom-left vertical extension (24px below) ── */}
+          {/* ── Bottom-left vertical extension ── */}
           <VLine style={{ left: 0, bottom: -24, height: 24 }} />
 
           {/*

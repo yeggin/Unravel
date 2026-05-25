@@ -108,20 +108,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* matches Figma container size */
-  width: 17px;
-  height: 17px;
+  width: 12px;
+  height: 12px;
   flex-shrink: 0;
 }
 
 .bead-default {
-  /*
-   * Figma: size-[11.856px] bg-[#d9d9d9] rotate-45 — solid filled diamond.
-   * We use a slightly darker grey (#b0b8c4) for better visibility on white.
-   * border: none prevents any inherited Tailwind border from adding an outline look.
-   */
-  width: 12px;
-  height: 12px;
+  /* Smaller diamonds — user request */
+  width: 8px;
+  height: 8px;
   transform: rotate(45deg);
   background: #b0b8c4;
   border: none;
@@ -136,8 +131,8 @@
 }
 
 .bead-slot[data-bead-state="current"] .bead-default {
-  width: 14px;
-  height: 14px;
+  width: 10px;
+  height: 10px;
   background: #0088ff;
   opacity: 1;
 }
@@ -189,7 +184,7 @@
 .attachment-card {
   border: 1px solid #d1dce8;
   background: white;
-  border-radius: 0.5rem;
+  border-radius: 6px;
   padding: 1.25rem 1rem;
   cursor: pointer;
   transition: border-color 0.2s, border-width 0.1s;
@@ -205,7 +200,7 @@
 /* ── Family / quiz answer rows ──────────────────────────────────────────── */
 .answer-row {
   border: 1px solid #d1dce8;
-  border-radius: 0.5rem;
+  border-radius: 6px;
   padding: 0.875rem 1rem;
   cursor: pointer;
   width: 100%;
@@ -213,20 +208,20 @@
   background: white;
   transition: border-color 0.2s, background 0.2s;
   font-family: var(--app-font-body);
-  font-size: 0.875rem;
+  font-size: 1.125rem;
   color: #1d2e48;
 }
 .answer-row:hover { border-color: #80bbff; }
 .answer-row.selected { border-color: #0088ff; background: #f0f7ff; }
 
 /* ── Navigation buttons ─────────────────────────────────────────────────── */
-/* "< back" and "skip" text links */
+/* "← back" and "skip" text links */
 .nav-btn-text {
   background: none;
   border: none;
   cursor: pointer;
   font-family: var(--app-font-body);
-  font-size: 0.875rem;
+  font-size: 1.125rem;
   color: #1d2e48;
   padding: 0.25rem 0;
   opacity: 0.55;
@@ -241,10 +236,10 @@
   border: 1px solid #0088ff;
   background: white;
   color: #0088ff;
-  border-radius: 9px;
+  border-radius: 6px;
   padding: 10px 32px;
   font-family: var(--app-font-body);
-  font-size: 0.9375rem;
+  font-size: 1.125rem;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
   line-height: 1;
@@ -252,10 +247,11 @@
 .nav-btn-continue:hover { background: #0088ff; color: white; }
 .nav-btn-continue:disabled { opacity: 0.3; cursor: default; }
 
-/* Filled "Unravel" / primary submit button — Figma: bg-[#6dbbff] border-[#47a8fd] rounded-[9px] */
+/* Filled "Unravel" / primary submit button */
 .nav-btn-continue.primary-fill {
   background: #6dbbff;
   color: white;
   border-color: #47a8fd;
+  border-radius: 6px;
 }
 .nav-btn-continue.primary-fill:hover { background: #47a8fd; }

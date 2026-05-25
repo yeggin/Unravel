@@ -207,7 +207,7 @@ export function IntakePage() {
               flexDirection: "column",
             }}
           >
-            {/* Textarea — Figma: bg rgba(255,255,255,0.52), border #0088ff, rounded-[10px], h=286px */}
+            {/* Textarea — border-radius 6px */}
             <textarea
               value={state.reflection}
               onChange={(e) => update("reflection", e.target.value)}
@@ -216,12 +216,12 @@ export function IntakePage() {
               style={{
                 background: "rgba(255,255,255,0.52)",
                 border: `1px solid ${BLUE}`,
-                borderRadius: 10,
+                borderRadius: 6,
                 padding: "22px 24px",
                 minHeight: 220,
                 width: "100%",
                 resize: "vertical",
-                fontSize: "1rem",
+                fontSize: "1.125rem",
                 color: "#a8b3c1",
                 fontFamily: "var(--app-font-body)",
                 lineHeight: 1.6,
@@ -229,12 +229,10 @@ export function IntakePage() {
                 boxSizing: "border-box",
               }}
             />
+          </div>
 
-            {/*
-             * "+ Want to add more context" — clicking jumps directly to step 1.
-             * No intermediate Continue button (user request #1).
-             * "+" is smaller (1.25rem, user request #1).
-             */}
+          {/* "More context" — centered on the full page, not inside narrow column */}
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
             <button
               type="button"
               onClick={() => {
@@ -254,7 +252,6 @@ export function IntakePage() {
                 alignItems: "center",
                 gap: 10,
                 padding: 0,
-                marginTop: 18,
               }}
             >
               <span
@@ -285,7 +282,7 @@ export function IntakePage() {
           {/* Spacer */}
           <div style={{ flex: 1 }} />
 
-          {/* Unravel — always shown, right-aligned */}
+          {/* Unravel — smaller, right-aligned */}
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <button
               type="button"
@@ -295,16 +292,16 @@ export function IntakePage() {
               style={{
                 background: "#6dbbff",
                 border: "1px solid #47a8fd",
-                borderRadius: 9,
-                padding: "0 40px",
-                height: 54,
+                borderRadius: 6,
+                padding: "0 24px",
+                height: 44,
                 color: "white",
                 fontFamily: "var(--app-font-body)",
                 fontWeight: 500,
-                fontSize: "1.25rem",
+                fontSize: "1.125rem",
                 cursor: "pointer",
                 transition: "background 0.2s",
-                minWidth: 234,
+                minWidth: 140,
                 letterSpacing: "0.01em",
               }}
             >
@@ -371,7 +368,7 @@ export function IntakePage() {
                 >
                   {state.intensity ?? "—"}
                 </div>
-                <div style={{ fontSize: "0.875rem", color: BLUE, minHeight: "1.25rem" }}>
+                <div style={{ fontSize: "1.25rem", color: BLUE, minHeight: "1.5rem" }}>
                   {state.intensity ? INTENSITY_LABELS[state.intensity - 1] : ""}
                 </div>
               </div>
@@ -385,7 +382,7 @@ export function IntakePage() {
                   className="intensity-slider"
                   data-testid="slider-intensity"
                 />
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, fontSize: "0.75rem", color: "#a8b3c1" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, fontSize: "1rem", color: "#a8b3c1" }}>
                   <span>mild</span>
                   <span>overwhelming</span>
                 </div>
@@ -436,7 +433,7 @@ export function IntakePage() {
                           ...(selected ? { background: BLUE, borderColor: BLUE } : {}),
                         }}
                       />
-                      <span style={{ fontSize: "0.875rem", color: selected ? BLUE : "#1d2e48", transition: "color 0.15s" }}>
+                      <span style={{ fontSize: "1.125rem", color: selected ? BLUE : "#1d2e48", transition: "color 0.15s" }}>
                         {s}
                       </span>
                     </button>
@@ -470,9 +467,8 @@ export function IntakePage() {
                       }}
                       className={`attachment-card${selected ? " selected" : ""}`}
                     >
-                      {/* No bold — user request #4 */}
-                      <div style={{ fontSize: "0.875rem", fontWeight: 400, color: "#1d2e48", marginBottom: 4 }}>{opt.label}</div>
-                      <div style={{ fontSize: "0.8rem", color: "#a8b3c1", lineHeight: 1.4 }}>{opt.description}</div>
+                      <div style={{ fontSize: "1.125rem", fontWeight: 400, color: "#1d2e48", marginBottom: 4 }}>{opt.label}</div>
+                      <div style={{ fontSize: "1rem", color: "#a8b3c1", lineHeight: 1.4 }}>{opt.description}</div>
                     </button>
                   );
                 })}
@@ -484,7 +480,7 @@ export function IntakePage() {
                   onClick={() => setAttachmentMode("quiz")}
                   style={{ color: BLUE, opacity: 1 }}
                 >
-                  Not sure? Help me figure it out →
+                  Not sure. Help me figure it out →
                 </button>
               </div>
             </div>
@@ -554,7 +550,7 @@ export function IntakePage() {
                           ...(selected ? { background: BLUE, borderColor: BLUE } : {}),
                         }}
                       />
-                      <span style={{ fontSize: "0.875rem", color: selected ? BLUE : "#1d2e48", transition: "color 0.15s" }}>
+                      <span style={{ fontSize: "1.125rem", color: selected ? BLUE : "#1d2e48", transition: "color 0.15s" }}>
                         {p}
                       </span>
                     </button>
@@ -569,7 +565,7 @@ export function IntakePage() {
                 onClick={() => setFamilyMode("quiz")}
                 style={{ color: BLUE, opacity: 1 }}
               >
-                Not sure? Help me figure it out →
+                Not sure. Help me figure it out →
               </button>
             </div>
           </StepFrame>
@@ -658,11 +654,11 @@ function StepFrame({ step, title, subtitle, children, onBack, onNext, onSkip, ne
     <AppFrame currentBead={step}>
       <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <h2 style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.25rem", color: "#1d2e48", lineHeight: 1.35, margin: 0, marginBottom: 8 }}>
+          <h2 style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.25rem", color: "#1d2e48", lineHeight: 1.35, margin: 0, marginBottom: 16 }}>
             {title}
           </h2>
           {subtitle && (
-            <p style={{ fontSize: "0.875rem", color: "#a8b3c1", maxWidth: 480, margin: "0 auto", lineHeight: 1.6 }}>
+            <p style={{ fontSize: "1.125rem", color: "#a8b3c1", maxWidth: 480, margin: "0 auto", lineHeight: 1.6 }}>
               {subtitle}
             </p>
           )}
@@ -670,7 +666,7 @@ function StepFrame({ step, title, subtitle, children, onBack, onNext, onSkip, ne
         <div style={{ flex: 1 }}>{children}</div>
         <div style={{ marginTop: 28, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <button type="button" className="nav-btn-text" onClick={onBack} disabled={!onBack}>
-            &lt; back
+            ← back
           </button>
           <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
             {onSkip && (
