@@ -1,19 +1,36 @@
 import type { ReactNode, CSSProperties } from "react";
 
+/*
+ * AppFrame — full-page viewport shell matching the Figma design (node 138:2)
+ *
+ * Key Figma measurements (1440×1024 canvas → scaled to 1000px inner frame):
+ *   Outer border:   4.609px solid #0088ff
+ *   Inner frame:    w=977px, h=774px (content panel rgba(255,255,255,0.59))
+ *   Beads:          11.856px diamond, container 16.767px, gap 72px center-to-center
+ *   Short segment:  width ≈ 95px
+ *   Gap:            25px
+ *   Long segment:   starts at 120px
+ *   Vert extend up: 19px above top line
+ *   Dot (Ellipse5): center 36px from frame left → left edge at 31px
+ *   Group11 dots:   2 stacked at top of right vertical
+ *   Bottom dots:    at 3%, 6% and 77% from frame left
+ *   Bottom extend:  24px below bottom line
+ */
+
 const TOTAL_BEADS = 7;
 const BLUE = "#0088ff";
-const DOT_SIZE = 10;
+const DOT_R = 5; // dot radius in px (Figma: 10.29px ÷ 2 ≈ 5.145)
 
 interface AppFrameProps {
   children: ReactNode;
-  /** 0 = landing (no bead lit), 1–7 = current structured step */
+  /** 0 = landing (none lit), 1–7 = current structured step */
   currentBead?: number;
 }
 
-// Thin helpers to keep JSX clean
 function HLine({ style }: { style: CSSProperties }) {
   return (
     <div
+      aria-hidden
       style={{
         position: "absolute",
         height: 1,
@@ -27,6 +44,7 @@ function HLine({ style }: { style: CSSProperties }) {
 function VLine({ style }: { style: CSSProperties }) {
   return (
     <div
+      aria-hidden
       style={{
         position: "absolute",
         width: 1,
@@ -42,17 +60,21 @@ function Dot({ dataDot, style }: { dataDot: string; style: CSSProperties }) {
     <span
       className="frame-dot"
       data-dot={dataDot}
-      style={{ width: DOT_SIZE, height: DOT_SIZE, ...style }}
+      aria-hidden
+      style={{
+        width: DOT_R * 2,
+        height: DOT_R * 2,
+        ...style,
+      }}
     />
   );
 }
 
 export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
-  const half = DOT_SIZE / 2;
-
   return (
     /*
-     * PAGE ROOT — thick outer blue border around the entire viewport (Figma: border 4.6px #0088ff)
+     * PAGE ROOT — thick outer blue border (Figma: border-[4.609px] solid #08f)
+     * This wraps the entire viewport.
      */
     <div
       style={{
@@ -65,9 +87,9 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
       }}
     >
       {/*
-       * BACKGROUND BLOBS — downloaded from Figma, soft blurred colour washes.
-       * User can replace these images or add additional ones at any time.
-       * Positions mirror the Figma canvas layout (1440×1024 reference).
+       * BACKGROUND BLOBS
+       * Figma: image37 blur-[27.5px] left=-110 top=385, size=688
+       *        image31 blur-[34.336px] left=318 top=516, w=603 h=653
        */}
       <div
         aria-hidden
@@ -76,8 +98,8 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
           width: 688,
           height: 688,
           left: -110,
-          bottom: -180,
-          filter: "blur(27px)",
+          top: "38%",
+          filter: "blur(27.5px)",
           opacity: 0.67,
           backgroundImage: "url(/figma-assets/bg1.png)",
           backgroundSize: "cover",
@@ -92,7 +114,7 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
           width: 603,
           height: 653,
           left: "22%",
-          bottom: -140,
+          top: "50%",
           filter: "blur(34px)",
           opacity: 0.54,
           backgroundImage: "url(/figma-assets/bg2.png)",
@@ -102,7 +124,7 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
         }}
       />
 
-      {/* CONTENT COLUMN */}
+      {/* CONTENT COLUMN — centred, relative z-index above blobs */}
       <div
         style={{
           position: "relative",
@@ -110,16 +132,14 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          padding: "28px 48px 48px",
+          padding: "28px 48px 52px",
           minHeight: "calc(100vh - 9.2px)",
         }}
       >
         {/*
          * BEAD BAR
-         * Monogram image is downloaded from Figma — replace with brand SVG later.
-         * Each bead slot has data-bead-index + data-bead-state for custom bead hookup:
-         *   [data-bead-index="0"] .bead-default { background-image: url('...') }
-         *   [data-bead-state="current"] .bead-default { ... }
+         * Figma: monogram container 106×78px, each bead slot 17px, 55px gap.
+         * gap: 55 applies between all flex children (monogram→bead1 = 55px, bead-to-bead = 55px).
          */}
         <div
           style={{
@@ -127,18 +147,15 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
             maxWidth: 1000,
             display: "flex",
             alignItems: "center",
-            gap: 20,
-            marginBottom: 16,
+            gap: 55,
+            marginBottom: 18,
           }}
           role="progressbar"
           aria-valuenow={currentBead}
           aria-valuemax={TOTAL_BEADS}
+          aria-label="Progress"
         >
-          {/*
-           * Monogram — the Figma artwork is a large PNG cropped to a 106×78 window.
-           * Offsets from Figma: left=-19.79%, top=-55% of the container (% of 106×78).
-           * Replace this container + image with your own brand asset when ready.
-           */}
+          {/* Monogram — 106×78px window into the large Figma artwork */}
           <div
             style={{
               width: 106,
@@ -146,7 +163,6 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
               overflow: "hidden",
               position: "relative",
               flexShrink: 0,
-              marginRight: 10,
             }}
             aria-label="unravel"
           >
@@ -162,6 +178,8 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
               }}
             />
           </div>
+
+          {/* 7 diamond beads — Figma: bg-[#d9d9d9] size-[11.856px] rotate-45 */}
           {Array.from({ length: TOTAL_BEADS }).map((_, i) => {
             const state =
               i < currentBead - 1
@@ -176,11 +194,7 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
                 data-bead-index={i}
                 data-bead-state={state}
                 aria-label={`Step ${i + 1}${
-                  state === "current"
-                    ? " (current)"
-                    : state === "completed"
-                    ? " (done)"
-                    : ""
+                  state === "current" ? " (current)" : state === "completed" ? " (done)" : ""
                 }`}
               >
                 <div className="bead-default" />
@@ -191,18 +205,21 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
 
         {/*
          * INNER FRAME
-         * Thin 1px blue line decorations matching the Figma layout.
-         * Circle dots are each individually addressable via [data-dot="..."] for idle animations.
+         * The frame div top edge = the top horizontal line.
+         * Left/right verticals extend 19px ABOVE the frame top (negative top).
+         * Dot positions are relative to this div.
          *
-         * Structure:
-         *   - Left vertical: full height, extends 20px above top line
-         *   - Top-left short segment (~120px), ends in a circle dot
-         *   - ~28px gap
-         *   - Top-right long segment (rest of width), starts with a circle dot
-         *   - Right vertical: full height, extends 20px above, has sub-dot near top
-         *   - Bottom horizontal: full width
-         *   - Two circle dots on bottom line (left ~12%, right ~72%)
-         *   - Short vertical extending 22px below bottom-left
+         * Frame line structure (all scaled to 1000px max-width):
+         *   Left vert:   left=0, top=-19 → bottom
+         *   Short seg:   left=0, top=0, width=95px
+         *   Gap:         25px (95→120)
+         *   Long seg:    left=120, top=0 → right
+         *   Ellipse5:    center at left=36, top=0 → dot left=31, top=-5
+         *   Right vert:  right=0, top=-19 → bottom
+         *   Group11 dots (2): right=-5, top=-24 and top=-5
+         *   Bottom line: left=0 → right, bottom=0
+         *   Dots bottom: left=3%, 6%, 77% at bottom=-5
+         *   Ext below:   left=0, bottom=-24, height=24
          */}
         <div
           style={{
@@ -214,43 +231,46 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
             flexDirection: "column",
           }}
         >
-          {/* Left vertical — starts 20px above the top horizontal */}
-          <VLine style={{ left: 0, top: -20, bottom: 0 }} />
+          {/* ── Left vertical — extends 19px above frame top ── */}
+          <VLine style={{ left: 0, top: -19, bottom: 0 }} />
 
-          {/* Top-left short segment */}
-          <HLine style={{ left: 0, top: 0, width: 120 }} />
-          {/* Circle at the right end of the top-left segment */}
-          <Dot dataDot="top-left-end" style={{ left: 120 - half, top: -half }} />
+          {/* ── Top-left short segment (95px) ── */}
+          <HLine style={{ left: 0, top: 0, width: 95 }} />
 
-          {/* Top-right long segment (starts 28px after the short one ends) */}
-          <HLine style={{ left: 148, top: 0, right: 0 }} />
-          {/* Circle at the left start of the top-right segment */}
-          <Dot dataDot="top-right-start" style={{ left: 148 - half, top: -half }} />
+          {/* ── Ellipse5 dot — Figma center at 36px from frame left ── */}
+          <Dot dataDot="top-left" style={{ left: 31, top: -DOT_R }} />
 
-          {/* Right vertical — also extends 20px above */}
-          <VLine style={{ right: 0, top: -20, bottom: 0 }} />
-          {/* Sub-dot on the right line, ~24px below where top segment meets */}
-          <Dot dataDot="right-sub" style={{ right: -half, top: 24 }} />
+          {/* ── Top-right long segment (starts at 120px) ── */}
+          <HLine style={{ left: 120, top: 0, right: 0 }} />
 
-          {/* Bottom horizontal */}
+          {/* ── Right vertical — also extends 19px above ── */}
+          <VLine style={{ right: 0, top: -19, bottom: 0 }} />
+
+          {/* ── Group11 dots — 2 stacked at top of right vertical ── */}
+          <Dot dataDot="top-right-upper" style={{ right: -DOT_R, top: -(19 + DOT_R) }} />
+          <Dot dataDot="top-right-lower" style={{ right: -DOT_R, top: -DOT_R }} />
+
+          {/* ── Bottom horizontal ── */}
           <HLine style={{ left: 0, right: 0, bottom: 0 }} />
-          {/* Two dots on the bottom line */}
-          <Dot dataDot="bottom-left-1" style={{ left: "8%", bottom: -half }} />
-          <Dot dataDot="bottom-left-2" style={{ left: "11%", bottom: -half }} />
-          <Dot dataDot="bottom-right" style={{ left: "72%", bottom: -half }} />
 
-          {/* Short vertical extension below the bottom-left corner */}
-          <VLine style={{ left: 0, bottom: -22, height: 22 }} />
+          {/* ── Bottom dots (Group10: 2 near-left, 1 right) ── */}
+          <Dot dataDot="bottom-left-1" style={{ left: "3%", bottom: -DOT_R }} />
+          <Dot dataDot="bottom-left-2" style={{ left: "6%", bottom: -DOT_R }} />
+          <Dot dataDot="bottom-right"  style={{ left: "77%", bottom: -DOT_R }} />
+
+          {/* ── Bottom-left vertical extension (24px below) ── */}
+          <VLine style={{ left: 0, bottom: -24, height: 24 }} />
 
           {/*
-           * CONTENT PANEL — semi-transparent white overlay (Figma: rgba(255,255,255,0.59))
-           * Sits inside the frame decorations.
+           * CONTENT PANEL — rgba(255,255,255,0.59) semi-transparent white
+           * Matches Figma's inner white overlay; padding sized from Figma proportions.
+           * padding-top ≈ 65px, padding-bottom ≈ 40px, horizontal ≈ 8% (≈80px on 1000px)
            */}
           <div
             style={{
               background: "rgba(255,255,255,0.59)",
               flex: 1,
-              padding: "48px 56px 36px",
+              padding: "65px 80px 40px",
               display: "flex",
               flexDirection: "column",
             }}

@@ -174,8 +174,11 @@ export function IntakePage() {
           transition={{ duration: 0.4 }}
           style={{ display: "flex", flexDirection: "column", flex: 1 }}
         >
-          {/* Title — Atkinson Hyperlegible Mono, matches Figma text-[20px] centered */}
-          <div style={{ textAlign: "center", marginBottom: 32 }}>
+          {/*
+           * Heading — Figma: Atkinson Hyperlegible Mono, 20px, centered
+           * top offset from panel: ~65px (handled by AppFrame content panel padding-top)
+           */}
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
             <h1
               style={{
                 fontFamily: "var(--app-font-heading)",
@@ -191,31 +194,43 @@ export function IntakePage() {
             </h1>
           </div>
 
-          {/* Textarea — Figma: bg rgba(255,255,255,0.52), border #0088ff, rounded-[10px] */}
-          <textarea
-            value={state.reflection}
-            onChange={(e) => update("reflection", e.target.value)}
-            placeholder="Write whatever you're feeling, what happened, why it's hitting you, what's going on underneath. Don't filter it."
-            data-testid="input-reflection"
+          {/*
+           * Central column — Figma: textarea 633px wide in 977px panel = 64.8%.
+           * Centered with auto margins. "+ context" row is left-aligned within it.
+           */}
+          <div
             style={{
-              background: "rgba(255,255,255,0.52)",
-              border: `1px solid ${BLUE}`,
-              borderRadius: 10,
-              padding: "22px 24px",
-              minHeight: 220,
               width: "100%",
-              resize: "vertical",
-              fontSize: "1.125rem",
-              color: "#1d2e48",
-              fontFamily: "var(--app-font-body)",
-              lineHeight: 1.6,
-              outline: "none",
-              boxSizing: "border-box",
+              maxWidth: 648,
+              alignSelf: "center",
+              display: "flex",
+              flexDirection: "column",
             }}
-          />
+          >
+            {/* Textarea — Figma: bg rgba(255,255,255,0.52), border #0088ff, rounded-[10px], h=286px */}
+            <textarea
+              value={state.reflection}
+              onChange={(e) => update("reflection", e.target.value)}
+              placeholder="Write whatever you're feeling, what happened, why it's hitting you, what's going on underneath. Don't filter it."
+              data-testid="input-reflection"
+              style={{
+                background: "rgba(255,255,255,0.52)",
+                border: `1px solid ${BLUE}`,
+                borderRadius: 10,
+                padding: "22px 24px",
+                minHeight: 220,
+                width: "100%",
+                resize: "vertical",
+                fontSize: "1rem",
+                color: "#a8b3c1",
+                fontFamily: "var(--app-font-body)",
+                lineHeight: 1.6,
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
 
-          {/* "+ Want to add more context" — Figma: large Inter "+" + Asta Sans text, both #0088ff */}
-          <div style={{ marginTop: 24, marginBottom: 32 }}>
+            {/* "+ Want to add more context" — Figma: Inter 48px "+" + Asta Sans 18px, both #0088ff */}
             <button
               type="button"
               onClick={() => setShowStructured((v) => !v)}
@@ -226,16 +241,16 @@ export function IntakePage() {
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: 12,
+                gap: 10,
                 padding: 0,
+                marginTop: 18,
               }}
             >
-              {/* Large "+" matching Figma: Inter Medium, 48px, #0088ff */}
               <span
                 style={{
                   fontFamily: "'Inter', sans-serif",
                   fontWeight: 500,
-                  fontSize: "2rem",
+                  fontSize: "1.75rem",
                   color: BLUE,
                   lineHeight: 1,
                   userSelect: "none",
@@ -243,7 +258,6 @@ export function IntakePage() {
               >
                 {showStructured ? "−" : "+"}
               </span>
-              {/* Text — Figma: Asta Sans Regular 18px #0088ff */}
               <span
                 style={{
                   fontFamily: "var(--app-font-body)",
@@ -257,8 +271,13 @@ export function IntakePage() {
             </button>
           </div>
 
-          {/* Spacer + submit button */}
+          {/* Spacer */}
           <div style={{ flex: 1 }} />
+
+          {/*
+           * Submit row — right-aligned to the content panel (NOT constrained to textarea column).
+           * Figma: Unravel button at panel right, bg #6dbbff border #47a8fd rounded-[9px] h=54px w=234px
+           */}
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
             {showStructured ? (
               <button
@@ -277,7 +296,6 @@ export function IntakePage() {
                 Continue
               </button>
             ) : (
-              /* Unravel button — Figma: bg #6dbbff, border #47a8fd, rounded-[9px], Asta Sans Medium 20px white */
               <button
                 type="button"
                 onClick={submit}
@@ -287,14 +305,16 @@ export function IntakePage() {
                   background: "#6dbbff",
                   border: "1px solid #47a8fd",
                   borderRadius: 9,
-                  padding: "14px 40px",
+                  padding: "0 40px",
+                  height: 54,
                   color: "white",
                   fontFamily: "var(--app-font-body)",
                   fontWeight: 500,
                   fontSize: "1.25rem",
                   cursor: "pointer",
                   transition: "background 0.2s",
-                  minWidth: 180,
+                  minWidth: 234,
+                  letterSpacing: "0.01em",
                 }}
               >
                 Unravel

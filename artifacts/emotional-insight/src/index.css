@@ -35,9 +35,9 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* ── Palette — Figma exact ──────────────────────────────────────────────────── */
+/* ── Palette (Figma exact) ────────────────────────────────────────────────── */
 :root {
-  /* Primary blue from Figma: #0088ff = hsl(207,100%,50%) */
+  /* #0088ff = hsl(207,100%,50%) */
   --primary: 207 100% 50%;
   --primary-foreground: 0 0% 100%;
 
@@ -67,9 +67,9 @@
 
   --radius: 0.5rem;
 
-  /* ── Typography ── */
+  /* Typography */
   --app-font-heading: 'Atkinson Hyperlegible Mono', 'Courier New', monospace;
-  /* TODO: Replace with Asta Sans once the font file is available */
+  /* Swap to Asta Sans via this variable once the font file is added */
   --app-font-body: 'Atkinson Hyperlegible', 'Inter', sans-serif;
 }
 
@@ -89,53 +89,65 @@
   }
 }
 
-/* ── Frame dots — hook for idle animation ──────────────────────────────────── */
-/*
-  Each .frame-dot is individually addressable via [data-dot="..."].
-  Add animations in a future pass without touching component logic.
+/* ── Frame dots ─────────────────────────────────────────────────────────────
+   Individually addressable via [data-dot="..."]:
+   [data-dot="top-left"] { animation: idle-pulse 2s ease-in-out infinite; }
 */
 .frame-dot {
   position: absolute;
-  width: 10px;
-  height: 10px;
   border-radius: 9999px;
   background-color: #0088ff;
+  /* width/height set inline from DOT_R in AppFrame.tsx */
 }
 
-/* ── Bead progress ─────────────────────────────────────────────────────────── */
-/*
-  Override bead appearance by targeting data attributes:
-    [data-bead-index="0"] .bead-default { background-image: url('...'); }
-    [data-bead-state="current"] .bead-default { ... }
+/* ── Bead progress bar ──────────────────────────────────────────────────────
+   Figma: container size-[16.767px], inner size-[11.856px] bg-[#d9d9d9] rotate-45
+   Override individual beads with [data-bead-index="N"] .bead-default { ... }
 */
 .bead-slot {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
-}
-.bead-default {
-  width: 10px;
-  height: 10px;
-  transform: rotate(45deg);
-  background: #d9d9d9;
-  transition: all 0.35s ease;
-}
-.bead-slot[data-bead-state="completed"] .bead-default {
-  background: #0088ff;
-  opacity: 0.45;
-}
-.bead-slot[data-bead-state="current"] .bead-default {
-  width: 12px;
-  height: 12px;
-  background: #0088ff;
-}
-.bead-slot[data-bead-state="upcoming"] .bead-default {
-  background: #d9d9d9;
+  /* matches Figma container size */
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
 }
 
-/* ── Diamond selection list ────────────────────────────────────────────────── */
+.bead-default {
+  /*
+   * Figma: size-[11.856px] bg-[#d9d9d9] rotate-45 — solid filled diamond.
+   * We use a slightly darker grey (#b0b8c4) for better visibility on white.
+   * border: none prevents any inherited Tailwind border from adding an outline look.
+   */
+  width: 12px;
+  height: 12px;
+  transform: rotate(45deg);
+  background: #b0b8c4;
+  border: none;
+  border-radius: 0;
+  flex-shrink: 0;
+  transition: background 0.3s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+}
+
+.bead-slot[data-bead-state="completed"] .bead-default {
+  background: #0088ff;
+  opacity: 0.4;
+}
+
+.bead-slot[data-bead-state="current"] .bead-default {
+  width: 14px;
+  height: 14px;
+  background: #0088ff;
+  opacity: 1;
+}
+
+.bead-slot[data-bead-state="upcoming"] .bead-default {
+  background: #b0b8c4;
+  opacity: 1;
+}
+
+/* ── Selection diamonds (chip list) ────────────────────────────────────────── */
 .diamond-icon {
   display: inline-block;
   flex-shrink: 0;
@@ -150,7 +162,7 @@
   background: currentColor;
 }
 
-/* ── Intensity slider diamond thumb ──────────────────────────────────────── */
+/* ── Intensity slider diamond thumb ─────────────────────────────────────── */
 .intensity-slider [role="slider"] {
   transform: rotate(45deg);
   border-radius: 2px !important;
@@ -162,7 +174,7 @@
   cursor: pointer;
 }
 
-/* ── Attachment card ─────────────────────────────────────────────────────── */
+/* ── Attachment cards ────────────────────────────────────────────────────── */
 .attachment-card {
   border: 1px solid #d1dce8;
   background: white;
@@ -172,13 +184,8 @@
   transition: border-color 0.2s;
   text-align: left;
 }
-.attachment-card:hover {
-  border-color: #80bbff;
-}
-.attachment-card.selected {
-  border-color: #0088ff;
-  background: #f0f7ff;
-}
+.attachment-card:hover { border-color: #80bbff; }
+.attachment-card.selected { border-color: #0088ff; background: #f0f7ff; }
 
 /* ── Family / quiz answer rows ──────────────────────────────────────────── */
 .answer-row {
@@ -192,55 +199,48 @@
   transition: border-color 0.2s, background 0.2s;
   font-family: var(--app-font-body);
   font-size: 0.875rem;
-  color: hsl(var(--foreground));
+  color: #1d2e48;
 }
-.answer-row:hover {
-  border-color: #80bbff;
-}
-.answer-row.selected {
-  border-color: #0088ff;
-  background: #f0f7ff;
-}
+.answer-row:hover { border-color: #80bbff; }
+.answer-row.selected { border-color: #0088ff; background: #f0f7ff; }
 
-/* ── Nav buttons ────────────────────────────────────────────────────────── */
+/* ── Navigation buttons ─────────────────────────────────────────────────── */
+/* "< back" and "skip" text links */
 .nav-btn-text {
   background: none;
   border: none;
   cursor: pointer;
   font-family: var(--app-font-body);
   font-size: 0.875rem;
-  color: hsl(var(--foreground));
+  color: #1d2e48;
   padding: 0.25rem 0;
-  opacity: 0.65;
+  opacity: 0.55;
   transition: opacity 0.15s;
+  line-height: 1;
 }
 .nav-btn-text:hover { opacity: 1; }
-.nav-btn-text:disabled { opacity: 0.25; cursor: default; }
+.nav-btn-text:disabled { opacity: 0.2; cursor: default; }
 
+/* Outlined "Continue" button */
 .nav-btn-continue {
   border: 1px solid #0088ff;
   background: white;
   color: #0088ff;
-  border-radius: 2rem;
-  padding: 0.5rem 1.75rem;
+  border-radius: 9px;
+  padding: 10px 32px;
   font-family: var(--app-font-body);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
+  line-height: 1;
 }
-.nav-btn-continue:hover {
-  background: #0088ff;
-  color: white;
-}
-.nav-btn-continue:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
+.nav-btn-continue:hover { background: #0088ff; color: white; }
+.nav-btn-continue:disabled { opacity: 0.3; cursor: default; }
+
+/* Filled "Unravel" / primary submit button — Figma: bg-[#6dbbff] border-[#47a8fd] rounded-[9px] */
 .nav-btn-continue.primary-fill {
   background: #6dbbff;
   color: white;
   border-color: #47a8fd;
 }
-.nav-btn-continue.primary-fill:hover {
-  background: #47a8fd;
-}
+.nav-btn-continue.primary-fill:hover { background: #47a8fd; }
