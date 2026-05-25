@@ -1,88 +1,90 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { AppFrame } from "@/components/AppFrame";
 
 interface StepShellProps {
   step: number;
   totalSteps: number;
   title: string;
-  whyWeAsk?: string;
+  subtitle?: string;
   children: ReactNode;
   onBack?: () => void;
   onNext: () => void;
   onSkip?: () => void;
   nextLabel?: string;
   nextDisabled?: boolean;
-  isLast?: boolean;
+  /** Show next button as primary blue fill (e.g. final step) */
+  nextPrimary?: boolean;
 }
 
 export function StepShell({
   step,
-  totalSteps,
+  totalSteps: _totalSteps,
   title,
-  whyWeAsk,
+  subtitle,
   children,
   onBack,
   onNext,
   onSkip,
   nextLabel,
   nextDisabled,
-  isLast,
+  nextPrimary,
 }: StepShellProps) {
-  const progress = Math.round((step / totalSteps) * 100);
-
   return (
-    <motion.div
-      key={step}
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-      className="w-full max-w-2xl"
-    >
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-3 text-xs text-muted-foreground">
-          <span>Step {step} of {totalSteps}</span>
-          <span>{progress}%</span>
-        </div>
-        <div className="h-1 bg-muted rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-primary"
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          />
-        </div>
-      </div>
+    <AppFrame currentBead={step}>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={step}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="flex flex-col flex-1 h-full"
+        >
+          {/* Header */}
+          <div className="mb-8 text-center">
+            <h2 className="font-heading text-xl md:text-2xl text-foreground leading-snug mb-2">
+              {title}
+            </h2>
+            {subtitle && (
+              <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
+                {subtitle}
+              </p>
+            )}
+          </div>
 
-      <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-2">{title}</h2>
-      {whyWeAsk && (
-        <p className="text-sm text-muted-foreground mb-8 italic">{whyWeAsk}</p>
-      )}
+          {/* Content — grows to fill */}
+          <div className="flex-1">{children}</div>
 
-      <div className="mb-10">{children}</div>
+          {/* Nav row */}
+          <div className="mt-8 flex items-center justify-between">
+            <button
+              type="button"
+              className="nav-btn-text"
+              onClick={onBack}
+              disabled={!onBack}
+            >
+              &lt; back
+            </button>
 
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          {onBack && (
-            <Button variant="ghost" onClick={onBack} className="gap-1">
-              <ChevronLeft className="w-4 h-4" /> Back
-            </Button>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          {onSkip && (
-            <Button variant="ghost" onClick={onSkip} className="text-muted-foreground">
-              Skip
-            </Button>
-          )}
-          <Button onClick={onNext} disabled={nextDisabled} className="gap-1">
-            {nextLabel ?? (isLast ? "Get insight" : "Continue")}
-            {!isLast && <ChevronRight className="w-4 h-4" />}
-          </Button>
-        </div>
-      </div>
-    </motion.div>
+            <div className="flex items-center gap-6">
+              {onSkip && (
+                <button type="button" className="nav-btn-text" onClick={onSkip}>
+                  skip
+                </button>
+              )}
+              <button
+                type="button"
+                className={`nav-btn-continue${nextPrimary ? " primary-fill" : ""}`}
+                onClick={onNext}
+                disabled={nextDisabled}
+              >
+                {nextLabel ?? "Continue"}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </AppFrame>
   );
 }

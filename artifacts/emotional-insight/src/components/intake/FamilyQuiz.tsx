@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FAMILY_QUIZ, type FamilyPattern, type AttachmentStyle } from "@/data/options";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
 
 interface FamilyQuizProps {
   onComplete: (result: { patterns: FamilyPattern[]; attachmentHint: AttachmentStyle | null }) => void;
   onCancel: () => void;
+  questionTitle: string;
+  questionSubtitle: string;
 }
 
-export function FamilyQuiz({ onComplete, onCancel }: FamilyQuizProps) {
+export function FamilyQuiz({ onComplete, onCancel, questionTitle, questionSubtitle }: FamilyQuizProps) {
   const [picks, setPicks] = useState<number[]>([]);
   const idx = picks.length;
   const question = FAMILY_QUIZ[idx];
@@ -17,7 +17,6 @@ export function FamilyQuiz({ onComplete, onCancel }: FamilyQuizProps) {
   function pick(optionIdx: number) {
     const next = [...picks, optionIdx];
     if (next.length === FAMILY_QUIZ.length) {
-      // Aggregate patterns and attachment hints
       const allPatterns = new Set<FamilyPattern>();
       const hintCounts: Record<string, number> = {};
       next.forEach((choice, qIdx) => {
@@ -38,31 +37,44 @@ export function FamilyQuiz({ onComplete, onCancel }: FamilyQuizProps) {
   if (!question) return null;
 
   return (
-    <div>
-      <div className="mb-4 flex items-center justify-between">
-        <Button variant="ghost" size="sm" onClick={onCancel} className="gap-1 text-muted-foreground">
-          <ChevronLeft className="w-4 h-4" /> Back to quick select
-        </Button>
-        <span className="text-xs text-muted-foreground">
-          {idx + 1} / {FAMILY_QUIZ.length}
-        </span>
+    <div className="flex flex-col h-full">
+      {/* Persistent question header */}
+      <div className="mb-6 text-center">
+        <h2 className="font-heading text-xl md:text-2xl text-foreground leading-snug mb-2">
+          {questionTitle}
+        </h2>
+        <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
+          {questionSubtitle}
+        </p>
       </div>
+
+      {/* Quiz sub-header */}
+      <div className="flex items-center justify-between mb-5 text-sm text-muted-foreground">
+        <button type="button" onClick={onCancel} className="nav-btn-text">
+          &lt; Back to quick select
+        </button>
+        <span>{idx + 1}/{FAMILY_QUIZ.length}</span>
+      </div>
+
+      {/* Question + answers */}
       <AnimatePresence mode="wait">
         <motion.div
           key={idx}
-          initial={{ opacity: 0, x: 16 }}
+          initial={{ opacity: 0, x: 12 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -16 }}
-          transition={{ duration: 0.3 }}
+          exit={{ opacity: 0, x: -12 }}
+          transition={{ duration: 0.25 }}
         >
-          <p className="font-serif text-lg text-foreground mb-5">{question.prompt}</p>
-          <div className="grid gap-2">
+          <p className="text-sm text-foreground mb-5 leading-relaxed max-w-xl">
+            {question.prompt}
+          </p>
+          <div className="grid gap-3">
             {question.options.map((opt, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => pick(i)}
-                className="text-left px-4 py-3 rounded-lg border border-border bg-card hover-elevate active-elevate-2 text-sm text-foreground"
+                className="answer-row"
               >
                 {opt.label}
               </button>

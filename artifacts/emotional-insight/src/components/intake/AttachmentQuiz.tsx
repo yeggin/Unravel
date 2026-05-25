@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ATTACHMENT_QUIZ, type AttachmentStyle } from "@/data/options";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
 
 interface AttachmentQuizProps {
   onComplete: (style: AttachmentStyle) => void;
   onCancel: () => void;
+  questionTitle: string;
+  questionSubtitle: string;
 }
 
-export function AttachmentQuiz({ onComplete, onCancel }: AttachmentQuizProps) {
+export function AttachmentQuiz({ onComplete, onCancel, questionTitle, questionSubtitle }: AttachmentQuizProps) {
   const [answers, setAnswers] = useState<AttachmentStyle[]>([]);
   const idx = answers.length;
   const question = ATTACHMENT_QUIZ[idx];
@@ -17,7 +17,6 @@ export function AttachmentQuiz({ onComplete, onCancel }: AttachmentQuizProps) {
   function pick(style: AttachmentStyle) {
     const next = [...answers, style];
     if (next.length === ATTACHMENT_QUIZ.length) {
-      // Tally most-selected style
       const counts = next.reduce<Record<string, number>>((acc, s) => {
         acc[s] = (acc[s] ?? 0) + 1;
         return acc;
@@ -32,31 +31,44 @@ export function AttachmentQuiz({ onComplete, onCancel }: AttachmentQuizProps) {
   if (!question) return null;
 
   return (
-    <div>
-      <div className="mb-4 flex items-center justify-between">
-        <Button variant="ghost" size="sm" onClick={onCancel} className="gap-1 text-muted-foreground">
-          <ChevronLeft className="w-4 h-4" /> Back to quick select
-        </Button>
-        <span className="text-xs text-muted-foreground">
-          {idx + 1} / {ATTACHMENT_QUIZ.length}
-        </span>
+    <div className="flex flex-col h-full">
+      {/* Persistent question header */}
+      <div className="mb-6 text-center">
+        <h2 className="font-heading text-xl md:text-2xl text-foreground leading-snug mb-2">
+          {questionTitle}
+        </h2>
+        <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
+          {questionSubtitle}
+        </p>
       </div>
+
+      {/* Quiz sub-header */}
+      <div className="flex items-center justify-between mb-5 text-sm text-muted-foreground">
+        <button type="button" onClick={onCancel} className="nav-btn-text">
+          &lt; Back to quick select
+        </button>
+        <span>{idx + 1}/{ATTACHMENT_QUIZ.length}</span>
+      </div>
+
+      {/* Question + answers */}
       <AnimatePresence mode="wait">
         <motion.div
           key={idx}
-          initial={{ opacity: 0, x: 16 }}
+          initial={{ opacity: 0, x: 12 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -16 }}
-          transition={{ duration: 0.3 }}
+          exit={{ opacity: 0, x: -12 }}
+          transition={{ duration: 0.25 }}
         >
-          <p className="font-serif text-lg text-foreground mb-5">{question.prompt}</p>
-          <div className="grid gap-2">
+          <p className="text-sm text-foreground mb-5 leading-relaxed max-w-xl">
+            {question.prompt}
+          </p>
+          <div className="grid gap-3">
             {question.options.map((opt, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => pick(opt.style)}
-                className="text-left px-4 py-3 rounded-lg border border-border bg-card hover-elevate active-elevate-2 text-sm text-foreground"
+                className="answer-row"
               >
                 {opt.label}
               </button>
