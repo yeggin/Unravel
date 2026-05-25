@@ -18,7 +18,6 @@ import {
   type AttachmentSource,
   type FamilyPattern,
 } from "@/data/options";
-
 import { Slider } from "@/components/ui/slider";
 import { AppFrame } from "@/components/AppFrame";
 import { DiamondList } from "@/components/intake/ChipSelect";
@@ -26,8 +25,11 @@ import { AttachmentQuiz } from "@/components/intake/AttachmentQuiz";
 import { FamilyQuiz } from "@/components/intake/FamilyQuiz";
 import { InsightView } from "@/components/result/InsightView";
 
+const BLUE = "#0088ff";
 const INTENSITY_LABELS = ["barely there", "a hum", "noticeable", "loud", "overwhelming"];
+const TOTAL_STEPS = 6;
 
+/* ── State ─────────────────────────────────────────────────────────────────── */
 interface IntakeState {
   reflection: string;
   relationship_context: RelationshipContext | null;
@@ -51,8 +53,8 @@ const initial: IntakeState = {
 };
 
 type Phase = "landing" | "structured" | "loading" | "result";
-const TOTAL_STEPS = 6;
 
+/* ── Page ──────────────────────────────────────────────────────────────────── */
 export function IntakePage() {
   const { toast } = useToast();
   const [state, setState] = useState<IntakeState>(initial);
@@ -128,38 +130,32 @@ export function IntakePage() {
     else setPhase("landing");
   }
 
-  /* ── LOADING ──────────────────────────────────────────────────────────── */
+  /* ── LOADING ── */
   if (phase === "loading") {
     return (
-      <div className="w-full min-h-screen flex flex-col items-center justify-center px-6 bg-background">
-        <div className="w-full max-w-3xl flex justify-end mb-4">
-          <span className="font-heading text-sm text-foreground/80">unravel</span>
-        </div>
+      <AppFrame currentBead={0}>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-center"
+          style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}
         >
-          <p className="font-heading text-lg text-foreground mb-2">
+          <p style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.25rem", color: "#1d2e48", marginBottom: 8 }}>
             Sitting with what you wrote
           </p>
-          <p className="text-sm text-muted-foreground">A moment to find what's underneath…</p>
+          <p style={{ fontSize: "0.875rem", color: "#a8b3c1" }}>A moment to find what's underneath…</p>
         </motion.div>
-      </div>
+      </AppFrame>
     );
   }
 
-  /* ── RESULT ───────────────────────────────────────────────────────────── */
+  /* ── RESULT ── */
   if (phase === "result" && result) {
     return (
       <InsightView
         result={result}
         onReset={reset}
         onBuildPlan={() =>
-          toast({
-            title: "Action plan coming soon",
-            description: "We'll turn these next steps into a daily check-in.",
-          })
+          toast({ title: "Action plan coming soon", description: "We'll turn these next steps into a daily check-in." })
         }
         onSaveShare={() =>
           toast({ title: "Save & share", description: "Coming soon with accounts." })
@@ -168,60 +164,102 @@ export function IntakePage() {
     );
   }
 
-  /* ── LANDING (Path A) ─────────────────────────────────────────────────── */
+  /* ── LANDING ── */
   if (phase === "landing") {
     return (
       <AppFrame currentBead={0}>
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="flex flex-col flex-1 h-full"
+          style={{ display: "flex", flexDirection: "column", flex: 1 }}
         >
-          {/* Title */}
-          <div className="text-center mb-8">
-            <h1 className="font-heading text-xl md:text-2xl text-foreground leading-snug">
+          {/* Title — Atkinson Hyperlegible Mono, matches Figma text-[20px] centered */}
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <h1
+              style={{
+                fontFamily: "var(--app-font-heading)",
+                fontSize: "1.25rem",
+                color: "#1d2e48",
+                lineHeight: 1.5,
+                margin: 0,
+              }}
+            >
               Tell us what you're feeling.
               <br />
               We'll help unravel what's underneath.
             </h1>
           </div>
 
-          {/* Reflection textarea */}
+          {/* Textarea — Figma: bg rgba(255,255,255,0.52), border #0088ff, rounded-[10px] */}
           <textarea
             value={state.reflection}
             onChange={(e) => update("reflection", e.target.value)}
             placeholder="Write whatever you're feeling, what happened, why it's hitting you, what's going on underneath. Don't filter it."
-            className="reflection-textarea w-full min-h-[180px] resize-y p-4 text-sm leading-relaxed bg-white border rounded-md focus:outline-none placeholder:text-muted-foreground/60"
-            style={{ fontFamily: "var(--app-font-body)" }}
             data-testid="input-reflection"
+            style={{
+              background: "rgba(255,255,255,0.52)",
+              border: `1px solid ${BLUE}`,
+              borderRadius: 10,
+              padding: "22px 24px",
+              minHeight: 220,
+              width: "100%",
+              resize: "vertical",
+              fontSize: "1.125rem",
+              color: "#1d2e48",
+              fontFamily: "var(--app-font-body)",
+              lineHeight: 1.6,
+              outline: "none",
+              boxSizing: "border-box",
+            }}
           />
 
-          {/* "+ add more context" toggle */}
-          <div className="mt-5 mb-8">
+          {/* "+ Want to add more context" — Figma: large Inter "+" + Asta Sans text, both #0088ff */}
+          <div style={{ marginTop: 24, marginBottom: 32 }}>
             <button
               type="button"
               onClick={() => setShowStructured((v) => !v)}
-              className="flex items-center gap-2 text-sm nav-btn-text"
-              style={{ color: showStructured ? "hsl(var(--primary))" : undefined, opacity: 1 }}
               data-testid="toggle-structured"
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: 0,
+              }}
             >
+              {/* Large "+" matching Figma: Inter Medium, 48px, #0088ff */}
               <span
-                className="inline-flex items-center justify-center w-4 h-4 border rounded-sm text-xs transition-colors"
                 style={{
-                  borderColor: showStructured ? "hsl(var(--primary))" : "hsl(var(--border))",
-                  color: showStructured ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))",
+                  fontFamily: "'Inter', sans-serif",
+                  fontWeight: 500,
+                  fontSize: "2rem",
+                  color: BLUE,
+                  lineHeight: 1,
+                  userSelect: "none",
                 }}
               >
                 {showStructured ? "−" : "+"}
               </span>
-              Want to add more context for a deeper analysis?
+              {/* Text — Figma: Asta Sans Regular 18px #0088ff */}
+              <span
+                style={{
+                  fontFamily: "var(--app-font-body)",
+                  fontSize: "1.125rem",
+                  color: BLUE,
+                  lineHeight: 1.4,
+                }}
+              >
+                Want to add more context for a deeper analysis?
+              </span>
             </button>
           </div>
 
-          {/* Spacer + submit row */}
-          <div className="flex-1" />
-          <div className="flex justify-end">
+          {/* Spacer + submit button */}
+          <div style={{ flex: 1 }} />
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
             {showStructured ? (
               <button
                 type="button"
@@ -239,12 +277,25 @@ export function IntakePage() {
                 Continue
               </button>
             ) : (
+              /* Unravel button — Figma: bg #6dbbff, border #47a8fd, rounded-[9px], Asta Sans Medium 20px white */
               <button
                 type="button"
-                className="nav-btn-continue primary-fill"
                 onClick={submit}
                 disabled={analyzeMutation.isPending}
                 data-testid="button-submit-quick"
+                style={{
+                  background: "#6dbbff",
+                  border: "1px solid #47a8fd",
+                  borderRadius: 9,
+                  padding: "14px 40px",
+                  color: "white",
+                  fontFamily: "var(--app-font-body)",
+                  fontWeight: 500,
+                  fontSize: "1.25rem",
+                  cursor: "pointer",
+                  transition: "background 0.2s",
+                  minWidth: 180,
+                }}
               >
                 Unravel
               </button>
@@ -255,301 +306,7 @@ export function IntakePage() {
     );
   }
 
-  /* ── STRUCTURED FLOW (Path B) ─────────────────────────────────────────── */
-  const stepContent: Record<number, React.ReactNode> = {
-    1: (
-      /* Step 1: Who is this about? — diamond list, 2 col */
-      <StepWrapper
-        step={1}
-        title="Who is this about?"
-        subtitle={WHY_WE_ASK.relationship}
-        onBack={prevStep}
-        onNext={nextStep}
-        onSkip={nextStep}
-        nextDisabled={!state.relationship_context}
-      >
-        <div className="flex justify-center mt-2">
-          <DiamondList
-            options={RELATIONSHIP_OPTIONS}
-            value={state.relationship_context}
-            onChange={(v) => update("relationship_context", v)}
-            columns={2}
-          />
-        </div>
-      </StepWrapper>
-    ),
-
-    2: (
-      /* Step 2: Intensity — large number + minimal slider */
-      <StepWrapper
-        step={2}
-        title="How loud is the feeling right now?"
-        subtitle={WHY_WE_ASK.intensity}
-        onBack={prevStep}
-        onNext={nextStep}
-        onSkip={nextStep}
-        nextDisabled={state.intensity === null}
-      >
-        <div className="flex flex-col items-center gap-8 mt-4">
-          {/* Big number display */}
-          <div className="text-center">
-            <div
-              className="font-heading text-6xl leading-none mb-2"
-              style={{ color: state.intensity ? "hsl(var(--primary))" : "hsl(var(--border))" }}
-            >
-              {state.intensity ?? "—"}
-            </div>
-            <div
-              className="text-sm"
-              style={{ color: "hsl(var(--primary))", minHeight: "1.25rem" }}
-            >
-              {state.intensity ? INTENSITY_LABELS[state.intensity - 1] : ""}
-            </div>
-          </div>
-
-          {/* Slider */}
-          <div className="w-full max-w-sm">
-            <Slider
-              min={1}
-              max={5}
-              step={1}
-              value={[state.intensity ?? 3]}
-              onValueChange={(v) => update("intensity", v[0])}
-              className="intensity-slider"
-              data-testid="slider-intensity"
-            />
-            <div className="flex justify-between mt-3 text-xs text-muted-foreground">
-              <span>mild</span>
-              <span>overwhelming</span>
-            </div>
-          </div>
-        </div>
-      </StepWrapper>
-    ),
-
-    3: (
-      /* Step 3: Body sensations — diamond list, 2 col */
-      <StepWrapper
-        step={3}
-        title="Where do you feel it in your body?"
-        subtitle={WHY_WE_ASK.body}
-        onBack={prevStep}
-        onNext={nextStep}
-        onSkip={nextStep}
-      >
-        <div className="flex justify-center mt-2">
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4 max-w-md">
-            {BODY_SENSATION_OPTIONS.map((s) => {
-              const selected = state.body_sensations.includes(s);
-              return (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => {
-                    const next = selected
-                      ? state.body_sensations.filter((x) => x !== s)
-                      : [...state.body_sensations, s];
-                    update("body_sensations", next);
-                  }}
-                  className="flex items-center gap-3 text-left group"
-                  data-testid={`chip-body-${s}`}
-                >
-                  <span
-                    className="diamond-icon shrink-0"
-                    style={{
-                      color: selected ? "hsl(var(--primary))" : "hsl(var(--border))",
-                      ...(selected
-                        ? {
-                            background: "hsl(var(--primary))",
-                            borderColor: "hsl(var(--primary))",
-                          }
-                        : {}),
-                    }}
-                  />
-                  <span
-                    className="text-sm leading-tight transition-colors"
-                    style={{
-                      color: selected ? "hsl(var(--primary))" : "hsl(var(--foreground))",
-                    }}
-                  >
-                    {s}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </StepWrapper>
-    ),
-
-    4: (
-      /* Step 4: Attachment — 2×2 card grid OR quiz */
-      attachmentMode === "select" ? (
-        <StepWrapper
-          step={4}
-          title="How does closeness usually feel for you?"
-          subtitle={WHY_WE_ASK.attachment}
-          onBack={prevStep}
-          onNext={nextStep}
-          onSkip={nextStep}
-        >
-          <div className="mt-2">
-            <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto">
-              {ATTACHMENT_OPTIONS.map((opt) => {
-                const selected = state.attachment_style === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => {
-                      update("attachment_style", opt.value);
-                      update("attachment_source", "self-reported");
-                    }}
-                    className={`attachment-card${selected ? " selected" : ""}`}
-                  >
-                    <div className="text-sm font-medium text-foreground mb-1">{opt.label}</div>
-                    <div className="text-xs text-muted-foreground leading-snug">
-                      {opt.description}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-            <div className="text-center mt-5">
-              <button
-                type="button"
-                className="nav-btn-text text-sm"
-                style={{ color: "hsl(var(--primary))", opacity: 1 }}
-                onClick={() => setAttachmentMode("quiz")}
-              >
-                Not sure → Help me figure this out.
-              </button>
-            </div>
-          </div>
-        </StepWrapper>
-      ) : (
-        /* Attachment quiz — quiz handles its own full-frame layout */
-        <AppFrame currentBead={4}>
-          <AttachmentQuiz
-            questionTitle="How does closeness usually feel for you?"
-            questionSubtitle={WHY_WE_ASK.attachment}
-            onComplete={(style) => {
-              update("attachment_style", style);
-              update("attachment_source", "quiz-inferred");
-              setAttachmentMode("select");
-            }}
-            onCancel={() => setAttachmentMode("select")}
-          />
-          <div className="mt-8 flex items-center justify-between">
-            <button type="button" className="nav-btn-text" onClick={prevStep}>
-              &lt; back
-            </button>
-            <button type="button" className="nav-btn-text" onClick={nextStep}>
-              skip
-            </button>
-          </div>
-        </AppFrame>
-      )
-    ),
-
-    5: (
-      /* Step 5: Family patterns — full-width list OR quiz */
-      familyMode === "select" ? (
-        <StepWrapper
-          step={5}
-          title="Anything quietly familiar from how you grew up?"
-          subtitle={WHY_WE_ASK.family}
-          onBack={prevStep}
-          onNext={nextStep}
-          onSkip={nextStep}
-        >
-          <div className="mt-2 grid gap-2 max-w-lg mx-auto">
-            {FAMILY_PATTERN_OPTIONS.map((p) => {
-              const selected = state.family_patterns.includes(p);
-              return (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => {
-                    const next = selected
-                      ? state.family_patterns.filter((x) => x !== p)
-                      : [...state.family_patterns, p];
-                    update("family_patterns", next);
-                  }}
-                  className={`answer-row${selected ? " selected" : ""}`}
-                  data-testid={`chip-family-${p}`}
-                >
-                  {p}
-                </button>
-              );
-            })}
-            <div className="text-center mt-2">
-              <button
-                type="button"
-                className="nav-btn-text text-sm"
-                style={{ color: "hsl(var(--primary))", opacity: 1 }}
-                onClick={() => setFamilyMode("quiz")}
-              >
-                Not sure → Help me figure this out.
-              </button>
-            </div>
-          </div>
-        </StepWrapper>
-      ) : (
-        <AppFrame currentBead={5}>
-          <FamilyQuiz
-            questionTitle="Anything quietly familiar from how you grew up?"
-            questionSubtitle={WHY_WE_ASK.family}
-            onComplete={({ patterns, attachmentHint }) => {
-              update("family_patterns", patterns);
-              if (!state.attachment_style && attachmentHint) {
-                update("attachment_style", attachmentHint);
-                update("attachment_source", "quiz-inferred");
-              }
-              setFamilyMode("select");
-            }}
-            onCancel={() => setFamilyMode("select")}
-          />
-          <div className="mt-8 flex items-center justify-between">
-            <button type="button" className="nav-btn-text" onClick={prevStep}>
-              &lt; back
-            </button>
-            <button type="button" className="nav-btn-text" onClick={nextStep}>
-              skip
-            </button>
-          </div>
-        </AppFrame>
-      )
-    ),
-
-    6: (
-      /* Step 6: MBTI — simple small input */
-      <StepWrapper
-        step={6}
-        title="MBTI? (optional)"
-        subtitle={WHY_WE_ASK.mbti}
-        onBack={prevStep}
-        onNext={submit}
-        onSkip={submit}
-        nextLabel="Unravel"
-        nextPrimary
-      >
-        <div className="flex justify-start mt-4 max-w-lg mx-auto">
-          <input
-            type="text"
-            value={state.mbti ?? ""}
-            onChange={(e) => update("mbti", e.target.value)}
-            placeholder="e.g. INFJ"
-            maxLength={4}
-            className="uppercase text-sm tracking-widest border border-border rounded px-4 py-2 w-40 focus:outline-none focus:border-primary bg-white"
-            style={{ fontFamily: "var(--app-font-body)" }}
-            data-testid="input-mbti"
-          />
-        </div>
-      </StepWrapper>
-    ),
-  };
-
+  /* ── STRUCTURED FLOW ── */
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -557,17 +314,300 @@ export function IntakePage() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -8 }}
-        transition={{ duration: 0.25 }}
-        className="w-full"
+        transition={{ duration: 0.22 }}
+        style={{ width: "100%" }}
       >
-        {stepContent[step]}
+        {step === 1 && (
+          <StepFrame
+            step={1}
+            title="Who is this about?"
+            subtitle={WHY_WE_ASK.relationship}
+            onBack={prevStep}
+            onNext={nextStep}
+            onSkip={nextStep}
+            nextDisabled={!state.relationship_context}
+          >
+            <CenteredContent>
+              <DiamondList
+                options={RELATIONSHIP_OPTIONS}
+                value={state.relationship_context}
+                onChange={(v) => update("relationship_context", v)}
+                columns={2}
+              />
+            </CenteredContent>
+          </StepFrame>
+        )}
+
+        {step === 2 && (
+          <StepFrame
+            step={2}
+            title="How loud is the feeling right now?"
+            subtitle={WHY_WE_ASK.intensity}
+            onBack={prevStep}
+            onNext={nextStep}
+            onSkip={nextStep}
+            nextDisabled={state.intensity === null}
+          >
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 32, marginTop: 16 }}>
+              <div style={{ textAlign: "center" }}>
+                <div
+                  style={{
+                    fontFamily: "var(--app-font-heading)",
+                    fontSize: "4rem",
+                    lineHeight: 1,
+                    color: state.intensity ? BLUE : "#d1dce8",
+                    marginBottom: 6,
+                  }}
+                >
+                  {state.intensity ?? "—"}
+                </div>
+                <div style={{ fontSize: "0.875rem", color: BLUE, minHeight: "1.25rem" }}>
+                  {state.intensity ? INTENSITY_LABELS[state.intensity - 1] : ""}
+                </div>
+              </div>
+              <div style={{ width: "100%", maxWidth: 400 }}>
+                <Slider
+                  min={1}
+                  max={5}
+                  step={1}
+                  value={[state.intensity ?? 3]}
+                  onValueChange={(v) => update("intensity", v[0])}
+                  className="intensity-slider"
+                  data-testid="slider-intensity"
+                />
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, fontSize: "0.75rem", color: "#a8b3c1" }}>
+                  <span>mild</span>
+                  <span>overwhelming</span>
+                </div>
+              </div>
+            </div>
+          </StepFrame>
+        )}
+
+        {step === 3 && (
+          <StepFrame
+            step={3}
+            title="Where do you feel it in your body?"
+            subtitle={WHY_WE_ASK.body}
+            onBack={prevStep}
+            onNext={nextStep}
+            onSkip={nextStep}
+          >
+            <CenteredContent>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 40px", maxWidth: 400 }}>
+                {BODY_SENSATION_OPTIONS.map((s) => {
+                  const selected = state.body_sensations.includes(s);
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => {
+                        const next = selected
+                          ? state.body_sensations.filter((x) => x !== s)
+                          : [...state.body_sensations, s];
+                        update("body_sensations", next);
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: 0,
+                        textAlign: "left",
+                      }}
+                      data-testid={`chip-body-${s}`}
+                    >
+                      <span
+                        className="diamond-icon"
+                        style={{
+                          color: selected ? BLUE : "#d1dce8",
+                          ...(selected ? { background: BLUE, borderColor: BLUE } : {}),
+                        }}
+                      />
+                      <span style={{ fontSize: "0.875rem", color: selected ? BLUE : "#1d2e48", transition: "color 0.15s" }}>
+                        {s}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </CenteredContent>
+          </StepFrame>
+        )}
+
+        {step === 4 && attachmentMode === "select" && (
+          <StepFrame
+            step={4}
+            title="How does closeness usually feel for you?"
+            subtitle={WHY_WE_ASK.attachment}
+            onBack={prevStep}
+            onNext={nextStep}
+            onSkip={nextStep}
+          >
+            <div style={{ marginTop: 8 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, maxWidth: 560, margin: "0 auto" }}>
+                {ATTACHMENT_OPTIONS.map((opt) => {
+                  const selected = state.attachment_style === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => {
+                        update("attachment_style", opt.value);
+                        update("attachment_source", "self-reported");
+                      }}
+                      className={`attachment-card${selected ? " selected" : ""}`}
+                    >
+                      <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "#1d2e48", marginBottom: 4 }}>{opt.label}</div>
+                      <div style={{ fontSize: "0.8rem", color: "#a8b3c1", lineHeight: 1.4 }}>{opt.description}</div>
+                    </button>
+                  );
+                })}
+              </div>
+              <div style={{ textAlign: "center", marginTop: 20 }}>
+                <button
+                  type="button"
+                  className="nav-btn-text"
+                  onClick={() => setAttachmentMode("quiz")}
+                  style={{ color: BLUE, opacity: 1 }}
+                >
+                  Not sure → Help me figure this out.
+                </button>
+              </div>
+            </div>
+          </StepFrame>
+        )}
+
+        {step === 4 && attachmentMode === "quiz" && (
+          <AppFrame currentBead={4}>
+            <AttachmentQuiz
+              questionTitle="How does closeness usually feel for you?"
+              questionSubtitle={WHY_WE_ASK.attachment}
+              onComplete={(style) => {
+                update("attachment_style", style);
+                update("attachment_source", "quiz-inferred");
+                setAttachmentMode("select");
+              }}
+              onCancel={() => setAttachmentMode("select")}
+            />
+            <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between" }}>
+              <button type="button" className="nav-btn-text" onClick={prevStep}>&lt; back</button>
+              <button type="button" className="nav-btn-text" onClick={nextStep}>skip</button>
+            </div>
+          </AppFrame>
+        )}
+
+        {step === 5 && familyMode === "select" && (
+          <StepFrame
+            step={5}
+            title="Anything quietly familiar from how you grew up?"
+            subtitle={WHY_WE_ASK.family}
+            onBack={prevStep}
+            onNext={nextStep}
+            onSkip={nextStep}
+          >
+            <div style={{ marginTop: 8, maxWidth: 560, margin: "8px auto 0" }}>
+              <div style={{ display: "grid", gap: 8 }}>
+                {FAMILY_PATTERN_OPTIONS.map((p) => {
+                  const selected = state.family_patterns.includes(p);
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => {
+                        const next = selected
+                          ? state.family_patterns.filter((x) => x !== p)
+                          : [...state.family_patterns, p];
+                        update("family_patterns", next);
+                      }}
+                      className={`answer-row${selected ? " selected" : ""}`}
+                      data-testid={`chip-family-${p}`}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+              </div>
+              <div style={{ textAlign: "center", marginTop: 16 }}>
+                <button
+                  type="button"
+                  className="nav-btn-text"
+                  onClick={() => setFamilyMode("quiz")}
+                  style={{ color: BLUE, opacity: 1 }}
+                >
+                  Not sure → Help me figure this out.
+                </button>
+              </div>
+            </div>
+          </StepFrame>
+        )}
+
+        {step === 5 && familyMode === "quiz" && (
+          <AppFrame currentBead={5}>
+            <FamilyQuiz
+              questionTitle="Anything quietly familiar from how you grew up?"
+              questionSubtitle={WHY_WE_ASK.family}
+              onComplete={({ patterns, attachmentHint }) => {
+                update("family_patterns", patterns);
+                if (!state.attachment_style && attachmentHint) {
+                  update("attachment_style", attachmentHint);
+                  update("attachment_source", "quiz-inferred");
+                }
+                setFamilyMode("select");
+              }}
+              onCancel={() => setFamilyMode("select")}
+            />
+            <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between" }}>
+              <button type="button" className="nav-btn-text" onClick={prevStep}>&lt; back</button>
+              <button type="button" className="nav-btn-text" onClick={nextStep}>skip</button>
+            </div>
+          </AppFrame>
+        )}
+
+        {step === 6 && (
+          <StepFrame
+            step={6}
+            title="MBTI? (optional)"
+            subtitle={WHY_WE_ASK.mbti}
+            onBack={prevStep}
+            onNext={submit}
+            onSkip={submit}
+            nextLabel="Unravel"
+            nextPrimary
+          >
+            <div style={{ marginTop: 16, maxWidth: 560, margin: "16px auto 0" }}>
+              <input
+                type="text"
+                value={state.mbti ?? ""}
+                onChange={(e) => update("mbti", e.target.value)}
+                placeholder="e.g. INFJ"
+                maxLength={4}
+                data-testid="input-mbti"
+                style={{
+                  textTransform: "uppercase",
+                  fontSize: "0.875rem",
+                  letterSpacing: "0.15em",
+                  border: "1px solid #d1dce8",
+                  borderRadius: 6,
+                  padding: "8px 16px",
+                  width: 160,
+                  outline: "none",
+                  fontFamily: "var(--app-font-body)",
+                  background: "white",
+                }}
+              />
+            </div>
+          </StepFrame>
+        )}
       </motion.div>
     </AnimatePresence>
   );
 }
 
-/* ── Shared step wrapper (uses StepShell layout inline for simplicity) ─────── */
-interface StepWrapperProps {
+/* ── Shared step wrapper ──────────────────────────────────────────────────── */
+interface StepFrameProps {
   step: number;
   title: string;
   subtitle?: string;
@@ -580,51 +620,28 @@ interface StepWrapperProps {
   nextPrimary?: boolean;
 }
 
-function StepWrapper({
-  step,
-  title,
-  subtitle,
-  children,
-  onBack,
-  onNext,
-  onSkip,
-  nextLabel,
-  nextDisabled,
-  nextPrimary,
-}: StepWrapperProps) {
+function StepFrame({ step, title, subtitle, children, onBack, onNext, onSkip, nextLabel, nextDisabled, nextPrimary }: StepFrameProps) {
   return (
     <AppFrame currentBead={step}>
-      <div className="flex flex-col flex-1 h-full">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h2 className="font-heading text-xl md:text-2xl text-foreground leading-snug mb-2">
+      <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+        <div style={{ textAlign: "center", marginBottom: 28 }}>
+          <h2 style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.25rem", color: "#1d2e48", lineHeight: 1.35, margin: 0, marginBottom: 8 }}>
             {title}
           </h2>
           {subtitle && (
-            <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
+            <p style={{ fontSize: "0.875rem", color: "#a8b3c1", maxWidth: 480, margin: "0 auto", lineHeight: 1.6 }}>
               {subtitle}
             </p>
           )}
         </div>
-
-        {/* Content */}
-        <div className="flex-1">{children}</div>
-
-        {/* Nav */}
-        <div className="mt-8 flex items-center justify-between">
-          <button
-            type="button"
-            className="nav-btn-text"
-            onClick={onBack}
-            disabled={!onBack}
-          >
+        <div style={{ flex: 1 }}>{children}</div>
+        <div style={{ marginTop: 28, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <button type="button" className="nav-btn-text" onClick={onBack} disabled={!onBack}>
             &lt; back
           </button>
-          <div className="flex items-center gap-6">
+          <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
             {onSkip && (
-              <button type="button" className="nav-btn-text" onClick={onSkip}>
-                skip
-              </button>
+              <button type="button" className="nav-btn-text" onClick={onSkip}>skip</button>
             )}
             <button
               type="button"
@@ -638,5 +655,14 @@ function StepWrapper({
         </div>
       </div>
     </AppFrame>
+  );
+}
+
+/* Helper: centres children horizontally */
+function CenteredContent({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "center", paddingTop: 8 }}>
+      {children}
+    </div>
   );
 }

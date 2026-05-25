@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 1023 124.366" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Group 10">
+<path id="Line 6" d="M28.0185 124.366L28.021 1.00199e-05" stroke="var(--stroke-0, #0088FF)"/>
+<line id="Line 8" x1="746.999" y1="101.212" x2="1023" y2="101.212" stroke="var(--stroke-0, #0088FF)"/>
+<line id="Line 7" x1="0.000189219" y1="101.435" x2="692" y2="101.173" stroke="var(--stroke-0, #0088FF)"/>
+<circle id="Ellipse 6" cx="898.143" cy="101.858" r="4.64517" fill="var(--fill-0, #0088FF)" stroke="var(--stroke-0, #0088FF)"/>
+<circle id="Ellipse 7" cx="66.1954" cy="101.858" r="4.64517" fill="var(--fill-0, #0088FF)" stroke="var(--stroke-0, #0088FF)"/>
+<path id="Ellipse 8" d="M76.0174 97.2131C78.2806 97.2132 80.1942 99.2473 80.1942 101.859C80.194 104.47 78.2805 106.503 76.0174 106.503C73.7542 106.503 71.8398 104.47 71.8397 101.859C71.8397 99.2472 73.7541 97.2131 76.0174 97.2131Z" fill="var(--fill-0, #0088FF)" stroke="var(--stroke-0, #0088FF)"/>
+</g>
+</svg>

@@ -13,7 +13,6 @@ interface StepShellProps {
   onSkip?: () => void;
   nextLabel?: string;
   nextDisabled?: boolean;
-  /** Show next button as primary blue fill (e.g. final step) */
   nextPrimary?: boolean;
 }
 
@@ -38,26 +37,49 @@ export function StepShell({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="flex flex-col flex-1 h-full"
+          transition={{ duration: 0.28, ease: "easeOut" }}
+          style={{ display: "flex", flexDirection: "column", flex: 1, height: "100%" }}
         >
           {/* Header */}
-          <div className="mb-8 text-center">
-            <h2 className="font-heading text-xl md:text-2xl text-foreground leading-snug mb-2">
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <h2
+              style={{
+                fontFamily: "var(--app-font-heading)",
+                fontSize: "1.25rem",
+                color: "#1d2e48",
+                lineHeight: 1.35,
+                marginBottom: 8,
+              }}
+            >
               {title}
             </h2>
             {subtitle && (
-              <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
+              <p
+                style={{
+                  fontSize: "0.875rem",
+                  color: "#a8b3c1",
+                  maxWidth: 480,
+                  margin: "0 auto",
+                  lineHeight: 1.6,
+                }}
+              >
                 {subtitle}
               </p>
             )}
           </div>
 
-          {/* Content — grows to fill */}
-          <div className="flex-1">{children}</div>
+          {/* Content */}
+          <div style={{ flex: 1 }}>{children}</div>
 
-          {/* Nav row */}
-          <div className="mt-8 flex items-center justify-between">
+          {/* Nav */}
+          <div
+            style={{
+              marginTop: 32,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
             <button
               type="button"
               className="nav-btn-text"
@@ -66,8 +88,7 @@ export function StepShell({
             >
               &lt; back
             </button>
-
-            <div className="flex items-center gap-6">
+            <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
               {onSkip && (
                 <button type="button" className="nav-btn-text" onClick={onSkip}>
                   skip
