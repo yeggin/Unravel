@@ -63,6 +63,7 @@ export function IntakePage() {
   const [showStructured, setShowStructured] = useState(false);
   const [attachmentMode, setAttachmentMode] = useState<"select" | "quiz">("select");
   const [familyMode, setFamilyMode] = useState<"select" | "quiz">("select");
+  const [familyQuizTaken, setFamilyQuizTaken] = useState(false);
   const [result, setResult] = useState<AnalyzeReflectionResponseType | null>(null);
 
   const analyzeMutation = useAnalyzeReflection({
@@ -368,7 +369,7 @@ export function IntakePage() {
                 >
                   {state.intensity ?? "—"}
                 </div>
-                <div style={{ fontSize: "1.25rem", color: BLUE, minHeight: "1.5rem" }}>
+                <div style={{ fontSize: "1.25rem", color: BLUE, minHeight: "1.5rem", fontFamily: "var(--app-font-body)" }}>
                   {state.intensity ? INTENSITY_LABELS[state.intensity - 1] : ""}
                 </div>
               </div>
@@ -382,7 +383,7 @@ export function IntakePage() {
                   className="intensity-slider"
                   data-testid="slider-intensity"
                 />
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, fontSize: "1rem", color: "#a8b3c1" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, fontSize: "0.875rem", color: "#a8b3c1" }}>
                   <span>mild</span>
                   <span>overwhelming</span>
                 </div>
@@ -433,7 +434,7 @@ export function IntakePage() {
                           ...(selected ? { background: BLUE, borderColor: BLUE } : {}),
                         }}
                       />
-                      <span style={{ fontSize: "1.125rem", color: selected ? BLUE : "#1d2e48", transition: "color 0.15s" }}>
+                      <span style={{ fontSize: "0.875rem", color: selected ? BLUE : "#1d2e48", transition: "color 0.15s" }}>
                         {s}
                       </span>
                     </button>
@@ -467,8 +468,8 @@ export function IntakePage() {
                       }}
                       className={`attachment-card${selected ? " selected" : ""}`}
                     >
-                      <div style={{ fontSize: "1.125rem", fontWeight: 400, color: "#1d2e48", marginBottom: 4 }}>{opt.label}</div>
-                      <div style={{ fontSize: "1rem", color: "#a8b3c1", lineHeight: 1.4 }}>{opt.description}</div>
+                      <div style={{ fontSize: "0.875rem", fontWeight: 400, color: "#1d2e48", marginBottom: 4 }}>{opt.label}</div>
+                      <div style={{ fontSize: "0.8125rem", color: "#a8b3c1", lineHeight: 1.4 }}>{opt.description}</div>
                     </button>
                   );
                 })}
@@ -480,7 +481,9 @@ export function IntakePage() {
                   onClick={() => setAttachmentMode("quiz")}
                   style={{ color: BLUE, opacity: 1 }}
                 >
-                  Not sure. Help me figure it out →
+                  {state.attachment_source === "quiz-inferred"
+                    ? "take it again →"
+                    : "Not sure. Help me figure it out →"}
                 </button>
               </div>
             </div>
@@ -500,7 +503,7 @@ export function IntakePage() {
               onCancel={() => setAttachmentMode("select")}
             />
             <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between" }}>
-              <button type="button" className="nav-btn-text" onClick={prevStep}>&lt; back</button>
+              <button type="button" className="nav-btn-text" onClick={prevStep}>← back</button>
               <button type="button" className="nav-btn-text" onClick={nextStep}>skip</button>
             </div>
           </AppFrame>
@@ -550,7 +553,7 @@ export function IntakePage() {
                           ...(selected ? { background: BLUE, borderColor: BLUE } : {}),
                         }}
                       />
-                      <span style={{ fontSize: "1.125rem", color: selected ? BLUE : "#1d2e48", transition: "color 0.15s" }}>
+                      <span style={{ fontSize: "0.875rem", color: selected ? BLUE : "#1d2e48", transition: "color 0.15s" }}>
                         {p}
                       </span>
                     </button>
@@ -565,7 +568,9 @@ export function IntakePage() {
                 onClick={() => setFamilyMode("quiz")}
                 style={{ color: BLUE, opacity: 1 }}
               >
-                Not sure. Help me figure it out →
+                {familyQuizTaken
+                  ? "take it again →"
+                  : "Not sure. Help me figure it out →"}
               </button>
             </div>
           </StepFrame>
@@ -582,12 +587,13 @@ export function IntakePage() {
                   update("attachment_style", attachmentHint);
                   update("attachment_source", "quiz-inferred");
                 }
+                setFamilyQuizTaken(true);
                 setFamilyMode("select");
               }}
               onCancel={() => setFamilyMode("select")}
             />
             <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between" }}>
-              <button type="button" className="nav-btn-text" onClick={prevStep}>&lt; back</button>
+              <button type="button" className="nav-btn-text" onClick={prevStep}>← back</button>
               <button type="button" className="nav-btn-text" onClick={nextStep}>skip</button>
             </div>
           </AppFrame>
@@ -658,7 +664,7 @@ function StepFrame({ step, title, subtitle, children, onBack, onNext, onSkip, ne
             {title}
           </h2>
           {subtitle && (
-            <p style={{ fontSize: "1.125rem", color: "#a8b3c1", maxWidth: 480, margin: "0 auto", lineHeight: 1.6 }}>
+            <p style={{ fontSize: "0.875rem", color: "#a8b3c1", maxWidth: 480, margin: "0 auto", lineHeight: 1.6 }}>
               {subtitle}
             </p>
           )}

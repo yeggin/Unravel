@@ -157,12 +157,18 @@
   background: currentColor;
 }
 
-/* ── Intensity slider — 2px track, sharp-cornered diamond thumb ─────────── */
+/* ── Intensity slider — 2px track (1px thicker than 1px frame lines), diamond thumb ─── */
+.intensity-slider {
+  display: flex !important;
+  align-items: center !important;
+  height: 20px !important;
+}
 .intensity-slider [data-radix-slider-track],
 .intensity-slider [role="group"] > span:first-child > span:first-child {
   height: 2px !important;
   background: #d1dce8 !important;
   border-radius: 0 !important;
+  flex: 1 !important;
 }
 .intensity-slider [data-radix-slider-range] {
   background: #0088ff !important;
@@ -208,7 +214,7 @@
   background: white;
   transition: border-color 0.2s, background 0.2s;
   font-family: var(--app-font-body);
-  font-size: 1.125rem;
+  font-size: 0.875rem;
   color: #1d2e48;
 }
 .answer-row:hover { border-color: #80bbff; }
@@ -221,7 +227,7 @@
   border: none;
   cursor: pointer;
   font-family: var(--app-font-body);
-  font-size: 1.125rem;
+  font-size: 0.875rem;
   color: #1d2e48;
   padding: 0.25rem 0;
   opacity: 0.55;
@@ -239,7 +245,7 @@
   border-radius: 6px;
   padding: 10px 32px;
   font-family: var(--app-font-body);
-  font-size: 1.125rem;
+  font-size: 0.875rem;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
   line-height: 1;

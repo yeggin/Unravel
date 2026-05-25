@@ -19,7 +19,7 @@ import type { ReactNode, CSSProperties } from "react";
 
 const TOTAL_BEADS = 7;
 const BLUE = "#0088ff";
-const DOT_R = 3; // radius → 6×6px circles
+const DOT_R = 4; // radius → 8×8px circles
 
 interface AppFrameProps {
   children: ReactNode;
@@ -254,21 +254,21 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
               left: 0,
               top: -19,
               bottom: 0,
-              background: `linear-gradient(to bottom, ${BLUE} 0%, ${BLUE} calc(80% - 4px), transparent calc(80% - 4px), transparent calc(80% + 4px), ${BLUE} calc(80% + 4px), ${BLUE} 100%)`,
+              background: `linear-gradient(to bottom, ${BLUE} 0%, ${BLUE} calc(80% - 8px), transparent calc(80% - 8px), transparent calc(80% + 8px), ${BLUE} calc(80% + 8px), ${BLUE} 100%)`,
               pointerEvents: "none",
             }}
           />
 
-          {/* ── Top-left short segment — starts 7px LEFT of frame ── */}
-          <HLine style={{ left: -7, top: 0, width: 102 }} />
+          {/* ── Top-left short segment — starts 12px LEFT of frame ── */}
+          <HLine style={{ left: -12, top: 0, width: 107 }} />
 
           {/* ── Dot on the short segment — on the line (center at ~45px from frame left) ── */}
           <Dot dataDot="top-left" style={{ left: 42, top: -DOT_R }} />
 
           {/*
-           * ── Top-right long segment — extends 7px PAST the right vertical ──
+           * ── Top-right long segment — extends 12px PAST the right vertical ──
            */}
-          <HLine style={{ left: 120, top: 0, right: -7 }} />
+          <HLine style={{ left: 120, top: 0, right: -12 }} />
 
           {/*
            * ── Right vertical — gap at 2/5 (40%) from top, extended 15px below ──
@@ -281,7 +281,7 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
               right: 0,
               top: -19,
               bottom: -15,
-              background: `linear-gradient(to bottom, ${BLUE} 0%, ${BLUE} calc(40% - 4px), transparent calc(40% - 4px), transparent calc(40% + 4px), ${BLUE} calc(40% + 4px), ${BLUE} 100%)`,
+              background: `linear-gradient(to bottom, ${BLUE} 0%, ${BLUE} calc(40% - 8px), transparent calc(40% - 8px), transparent calc(40% + 8px), ${BLUE} calc(40% + 8px), ${BLUE} 100%)`,
               pointerEvents: "none",
             }}
           />
@@ -295,17 +295,17 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
           <Dot dataDot="top-right-lower" style={{ right: -DOT_R, top: DOT_R * 3 + 4 }} />
 
           {/*
-           * ── Bottom horizontal — extends 7px past BOTH verticals, gap at 3/5 (60%) from left ──
+           * ── Bottom horizontal — extends 12px past BOTH verticals, gap at 3/5 (60%) from left ──
            */}
           <div
             aria-hidden
             style={{
               position: "absolute",
               height: 1,
-              left: -7,
-              right: -7,
+              left: -12,
+              right: -12,
               bottom: 0,
-              background: `linear-gradient(to right, ${BLUE} 0%, ${BLUE} calc(60% - 4px), transparent calc(60% - 4px), transparent calc(60% + 4px), ${BLUE} calc(60% + 4px), ${BLUE} 100%)`,
+              background: `linear-gradient(to right, ${BLUE} 0%, ${BLUE} calc(60% - 8px), transparent calc(60% - 8px), transparent calc(60% + 8px), ${BLUE} calc(60% + 8px), ${BLUE} 100%)`,
               pointerEvents: "none",
             }}
           />
