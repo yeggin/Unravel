@@ -65,14 +65,14 @@ export const ATTACHMENT_OPTIONS: { value: AttachmentStyle; label: string; descri
 ];
 
 export const FAMILY_PATTERN_OPTIONS: FamilyPattern[] = [
-  "emotionally distant parent",
-  "high-pressure / achievement-focused home",
+  "Emotionally distant parent",
+  "High-pressure / achievement-focused home",
   "I was the peacekeeper",
-  "unpredictable or unstable home environment",
-  "love felt conditional on my behavior",
+  "Unpredictable or unstable home environment",
+  "Love felt conditional on my behavior",
   "I learned not to show weakness",
-  "a parent leaned on me emotionally",
-  "conflict was avoided at all costs",
+  "A parent leaned on me emotionally",
+  "Conflict was avoided at all costs",
   "I felt invisible or unheard",
 ];
 
