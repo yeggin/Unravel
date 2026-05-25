@@ -222,7 +222,7 @@ export function IntakePage() {
                 minHeight: 220,
                 width: "100%",
                 resize: "vertical",
-                fontSize: "1.125rem",
+                fontSize: "0.875rem",
                 color: "#a8b3c1",
                 fontFamily: "var(--app-font-body)",
                 lineHeight: 1.6,
@@ -477,12 +477,12 @@ export function IntakePage() {
               <div style={{ textAlign: "center", marginTop: 20 }}>
                 <button
                   type="button"
-                  className="nav-btn-text"
+                  className={`nav-btn-text${state.attachment_source === "quiz-inferred" ? " nav-btn-retake" : ""}`}
                   onClick={() => setAttachmentMode("quiz")}
-                  style={{ color: BLUE, opacity: 1 }}
+                  style={state.attachment_source !== "quiz-inferred" ? { color: BLUE, opacity: 1 } : undefined}
                 >
                   {state.attachment_source === "quiz-inferred"
-                    ? "take it again →"
+                    ? "Take it again →"
                     : "Not sure. Help me figure it out →"}
                 </button>
               </div>
@@ -502,9 +502,8 @@ export function IntakePage() {
               }}
               onCancel={() => setAttachmentMode("select")}
             />
-            <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between" }}>
-              <button type="button" className="nav-btn-text" onClick={prevStep}>← back</button>
-              <button type="button" className="nav-btn-text" onClick={nextStep}>skip</button>
+            <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end" }}>
+              <button type="button" className="nav-btn-text" onClick={nextStep}>Skip</button>
             </div>
           </AppFrame>
         )}
@@ -564,12 +563,12 @@ export function IntakePage() {
             <div style={{ textAlign: "center", marginTop: 20 }}>
               <button
                 type="button"
-                className="nav-btn-text"
+                className={`nav-btn-text${familyQuizTaken ? " nav-btn-retake" : ""}`}
                 onClick={() => setFamilyMode("quiz")}
-                style={{ color: BLUE, opacity: 1 }}
+                style={!familyQuizTaken ? { color: BLUE, opacity: 1 } : undefined}
               >
                 {familyQuizTaken
-                  ? "take it again →"
+                  ? "Take it again →"
                   : "Not sure. Help me figure it out →"}
               </button>
             </div>
@@ -592,9 +591,8 @@ export function IntakePage() {
               }}
               onCancel={() => setFamilyMode("select")}
             />
-            <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between" }}>
-              <button type="button" className="nav-btn-text" onClick={prevStep}>← back</button>
-              <button type="button" className="nav-btn-text" onClick={nextStep}>skip</button>
+            <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end" }}>
+              <button type="button" className="nav-btn-text" onClick={nextStep}>Skip</button>
             </div>
           </AppFrame>
         )}
@@ -671,12 +669,12 @@ function StepFrame({ step, title, subtitle, children, onBack, onNext, onSkip, ne
         </div>
         <div style={{ flex: 1 }}>{children}</div>
         <div style={{ marginTop: 28, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <button type="button" className="nav-btn-text" onClick={onBack} disabled={!onBack}>
-            ← back
+          <button type="button" className="nav-btn-text nav-btn-back" onClick={onBack} disabled={!onBack}>
+            ← Back
           </button>
           <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
             {onSkip && (
-              <button type="button" className="nav-btn-text" onClick={onSkip}>skip</button>
+              <button type="button" className="nav-btn-text" onClick={onSkip}>Skip</button>
             )}
             <button
               type="button"

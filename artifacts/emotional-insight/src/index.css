@@ -162,17 +162,23 @@
   display: flex !important;
   align-items: center !important;
   height: 20px !important;
+  position: relative !important;
 }
-.intensity-slider [data-radix-slider-track],
-.intensity-slider [role="group"] > span:first-child > span:first-child {
+/* Target Radix track wrapper by all known selectors */
+.intensity-slider span[data-radix-slider-track],
+.intensity-slider [data-radix-slider-track] {
   height: 2px !important;
+  min-height: 2px !important;
+  max-height: 2px !important;
   background: #d1dce8 !important;
   border-radius: 0 !important;
   flex: 1 !important;
 }
+.intensity-slider span[data-radix-slider-range],
 .intensity-slider [data-radix-slider-range] {
   background: #0088ff !important;
   border-radius: 0 !important;
+  height: 100% !important;
 }
 .intensity-slider [role="slider"] {
   transform: rotate(45deg);
@@ -221,7 +227,7 @@
 .answer-row.selected { border-color: #0088ff; background: #f0f7ff; }
 
 /* ── Navigation buttons ─────────────────────────────────────────────────── */
-/* "← back" and "skip" text links */
+/* "← Back" and "Skip" text links */
 .nav-btn-text {
   background: none;
   border: none;
@@ -231,11 +237,28 @@
   color: #1d2e48;
   padding: 0.25rem 0;
   opacity: 0.55;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, color 0.15s;
   line-height: 1;
 }
 .nav-btn-text:hover { opacity: 1; }
 .nav-btn-text:disabled { opacity: 0.2; cursor: default; }
+
+/* Back button — inline-flex so the ← arrow and text are vertically centered */
+.nav-btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* "Take it again" — greyed out by default, turns blue on hover */
+.nav-btn-retake {
+  color: #a8b3c1 !important;
+  opacity: 0.8 !important;
+}
+.nav-btn-retake:hover {
+  color: #0088ff !important;
+  opacity: 1 !important;
+}
 
 /* Outlined "Continue" button */
 .nav-btn-continue {

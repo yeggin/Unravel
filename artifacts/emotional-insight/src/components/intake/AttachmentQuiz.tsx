@@ -44,8 +44,8 @@ export function AttachmentQuiz({ onComplete, onCancel, questionTitle, questionSu
 
       {/* Quiz sub-header */}
       <div className="flex items-center justify-between mb-5 text-sm text-muted-foreground">
-        <button type="button" onClick={onCancel} className="nav-btn-text">
-          &lt; Back to quick select
+        <button type="button" onClick={onCancel} className="nav-btn-text" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+          ← Back to quick select
         </button>
         <span>{idx + 1}/{ATTACHMENT_QUIZ.length}</span>
       </div>
