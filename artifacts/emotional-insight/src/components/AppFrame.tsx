@@ -19,7 +19,7 @@ import type { ReactNode, CSSProperties } from "react";
 
 const TOTAL_BEADS = 7;
 const BLUE = "#0088ff";
-const DOT_R = 5; // dot radius in px (Figma: 10.29px ÷ 2 ≈ 5.145)
+const DOT_R = 5; // radius → 10×10px circles (user request: 10px)
 
 interface AppFrameProps {
   children: ReactNode;
@@ -137,9 +137,8 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
         }}
       >
         {/*
-         * BEAD BAR
-         * Figma: monogram container 106×78px, each bead slot 17px, 55px gap.
-         * gap: 55 applies between all flex children (monogram→bead1 = 55px, bead-to-bead = 55px).
+         * BEAD BAR — monogram pinned left, 7 beads centered in remaining space.
+         * User request: progress indicator centered.
          */}
         <div
           style={{
@@ -147,15 +146,16 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
             maxWidth: 1000,
             display: "flex",
             alignItems: "center",
-            gap: 55,
+            position: "relative",
             marginBottom: 18,
+            minHeight: 78,
           }}
           role="progressbar"
           aria-valuenow={currentBead}
           aria-valuemax={TOTAL_BEADS}
           aria-label="Progress"
         >
-          {/* Monogram — 106×78px window into the large Figma artwork */}
+          {/* Monogram — 106×78px window, pinned to the left */}
           <div
             style={{
               width: 106,
@@ -179,28 +179,39 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
             />
           </div>
 
-          {/* 7 diamond beads — Figma: bg-[#d9d9d9] size-[11.856px] rotate-45 */}
-          {Array.from({ length: TOTAL_BEADS }).map((_, i) => {
-            const state =
-              i < currentBead - 1
-                ? "completed"
-                : i === currentBead - 1
-                ? "current"
-                : "upcoming";
-            return (
-              <div
-                key={i}
-                className="bead-slot"
-                data-bead-index={i}
-                data-bead-state={state}
-                aria-label={`Step ${i + 1}${
-                  state === "current" ? " (current)" : state === "completed" ? " (done)" : ""
-                }`}
-              >
-                <div className="bead-default" />
-              </div>
-            );
-          })}
+          {/* 7 beads — absolutely centered so they sit in the middle of the bar */}
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              alignItems: "center",
+              gap: 55,
+            }}
+          >
+            {Array.from({ length: TOTAL_BEADS }).map((_, i) => {
+              const beadState =
+                i < currentBead - 1
+                  ? "completed"
+                  : i === currentBead - 1
+                  ? "current"
+                  : "upcoming";
+              return (
+                <div
+                  key={i}
+                  className="bead-slot"
+                  data-bead-index={i}
+                  data-bead-state={beadState}
+                  aria-label={`Step ${i + 1}${
+                    beadState === "current" ? " (current)" : beadState === "completed" ? " (done)" : ""
+                  }`}
+                >
+                  <div className="bead-default" />
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/*
@@ -234,11 +245,20 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
           {/* ── Left vertical — extends 19px above frame top ── */}
           <VLine style={{ left: 0, top: -19, bottom: 0 }} />
 
-          {/* ── Top-left short segment (95px) ── */}
-          <HLine style={{ left: 0, top: 0, width: 95 }} />
+          {/*
+           * ── Top-left short segment ──
+           * Figma: Line4 starts at x=221.04 (frame left = 228.31) → starts 7.27px LEFT of frame.
+           * Width = 101.79px → left: -7, width: 102.
+           */}
+          <HLine style={{ left: -7, top: 0, width: 102 }} />
 
-          {/* ── Ellipse5 dot — Figma center at 36px from frame left ── */}
-          <Dot dataDot="top-left" style={{ left: 31, top: -DOT_R }} />
+          {/*
+           * ── Ellipse5 dot ──
+           * Figma: Ellipse5 center at x=332.27 absolute, frame left=228.31
+           * → center at 332.27-228.31 = 103.96px from frame left (scaled ≈ 106px in 1000px frame)
+           * left edge = center - DOT_R = 106 - 5 = 101px.
+           */}
+          <Dot dataDot="top-left" style={{ left: 101, top: -DOT_R }} />
 
           {/* ── Top-right long segment (starts at 120px) ── */}
           <HLine style={{ left: 120, top: 0, right: 0 }} />

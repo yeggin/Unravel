@@ -230,10 +230,21 @@ export function IntakePage() {
               }}
             />
 
-            {/* "+ Want to add more context" — Figma: Inter 48px "+" + Asta Sans 18px, both #0088ff */}
+            {/*
+             * "+ Want to add more context" — clicking jumps directly to step 1.
+             * No intermediate Continue button (user request #1).
+             * "+" is smaller (1.25rem, user request #1).
+             */}
             <button
               type="button"
-              onClick={() => setShowStructured((v) => !v)}
+              onClick={() => {
+                if (!state.reflection.trim()) {
+                  toast({ title: "Write a few words first", description: "Even a sentence is enough." });
+                  return;
+                }
+                setStep(1);
+                setPhase("structured");
+              }}
               data-testid="toggle-structured"
               style={{
                 background: "none",
@@ -250,13 +261,13 @@ export function IntakePage() {
                 style={{
                   fontFamily: "'Inter', sans-serif",
                   fontWeight: 500,
-                  fontSize: "1.75rem",
+                  fontSize: "1.25rem",
                   color: BLUE,
                   lineHeight: 1,
                   userSelect: "none",
                 }}
               >
-                {showStructured ? "−" : "+"}
+                +
               </span>
               <span
                 style={{
@@ -274,52 +285,31 @@ export function IntakePage() {
           {/* Spacer */}
           <div style={{ flex: 1 }} />
 
-          {/*
-           * Submit row — right-aligned to the content panel (NOT constrained to textarea column).
-           * Figma: Unravel button at panel right, bg #6dbbff border #47a8fd rounded-[9px] h=54px w=234px
-           */}
+          {/* Unravel — always shown, right-aligned */}
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            {showStructured ? (
-              <button
-                type="button"
-                className="nav-btn-continue"
-                onClick={() => {
-                  if (!state.reflection.trim()) {
-                    toast({ title: "Write a few words first", description: "Even a sentence is enough." });
-                    return;
-                  }
-                  setStep(1);
-                  setPhase("structured");
-                }}
-                data-testid="button-continue-structured"
-              >
-                Continue
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={submit}
-                disabled={analyzeMutation.isPending}
-                data-testid="button-submit-quick"
-                style={{
-                  background: "#6dbbff",
-                  border: "1px solid #47a8fd",
-                  borderRadius: 9,
-                  padding: "0 40px",
-                  height: 54,
-                  color: "white",
-                  fontFamily: "var(--app-font-body)",
-                  fontWeight: 500,
-                  fontSize: "1.25rem",
-                  cursor: "pointer",
-                  transition: "background 0.2s",
-                  minWidth: 234,
-                  letterSpacing: "0.01em",
-                }}
-              >
-                Unravel
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={submit}
+              disabled={analyzeMutation.isPending}
+              data-testid="button-submit-quick"
+              style={{
+                background: "#6dbbff",
+                border: "1px solid #47a8fd",
+                borderRadius: 9,
+                padding: "0 40px",
+                height: 54,
+                color: "white",
+                fontFamily: "var(--app-font-body)",
+                fontWeight: 500,
+                fontSize: "1.25rem",
+                cursor: "pointer",
+                transition: "background 0.2s",
+                minWidth: 234,
+                letterSpacing: "0.01em",
+              }}
+            >
+              Unravel
+            </button>
           </div>
         </motion.div>
       </AppFrame>
@@ -480,7 +470,8 @@ export function IntakePage() {
                       }}
                       className={`attachment-card${selected ? " selected" : ""}`}
                     >
-                      <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "#1d2e48", marginBottom: 4 }}>{opt.label}</div>
+                      {/* No bold — user request #4 */}
+                      <div style={{ fontSize: "0.875rem", fontWeight: 400, color: "#1d2e48", marginBottom: 4 }}>{opt.label}</div>
                       <div style={{ fontSize: "0.8rem", color: "#a8b3c1", lineHeight: 1.4 }}>{opt.description}</div>
                     </button>
                   );
@@ -493,7 +484,7 @@ export function IntakePage() {
                   onClick={() => setAttachmentMode("quiz")}
                   style={{ color: BLUE, opacity: 1 }}
                 >
-                  Not sure → Help me figure this out.
+                  Not sure? Help me figure it out →
                 </button>
               </div>
             </div>
@@ -528,8 +519,9 @@ export function IntakePage() {
             onNext={nextStep}
             onSkip={nextStep}
           >
-            <div style={{ marginTop: 8, maxWidth: 560, margin: "8px auto 0" }}>
-              <div style={{ display: "grid", gap: 8 }}>
+            {/* Diamond-icon style, matching body reactions page (user request #5) */}
+            <CenteredContent>
+              <div style={{ display: "grid", gap: "12px 40px", maxWidth: 480 }}>
                 {FAMILY_PATTERN_OPTIONS.map((p) => {
                   const selected = state.family_patterns.includes(p);
                   return (
@@ -542,24 +534,43 @@ export function IntakePage() {
                           : [...state.family_patterns, p];
                         update("family_patterns", next);
                       }}
-                      className={`answer-row${selected ? " selected" : ""}`}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: 0,
+                        textAlign: "left",
+                      }}
                       data-testid={`chip-family-${p}`}
                     >
-                      {p}
+                      <span
+                        className="diamond-icon"
+                        style={{
+                          color: selected ? BLUE : "#d1dce8",
+                          flexShrink: 0,
+                          ...(selected ? { background: BLUE, borderColor: BLUE } : {}),
+                        }}
+                      />
+                      <span style={{ fontSize: "0.875rem", color: selected ? BLUE : "#1d2e48", transition: "color 0.15s" }}>
+                        {p}
+                      </span>
                     </button>
                   );
                 })}
               </div>
-              <div style={{ textAlign: "center", marginTop: 16 }}>
-                <button
-                  type="button"
-                  className="nav-btn-text"
-                  onClick={() => setFamilyMode("quiz")}
-                  style={{ color: BLUE, opacity: 1 }}
-                >
-                  Not sure → Help me figure this out.
-                </button>
-              </div>
+            </CenteredContent>
+            <div style={{ textAlign: "center", marginTop: 20 }}>
+              <button
+                type="button"
+                className="nav-btn-text"
+                onClick={() => setFamilyMode("quiz")}
+                style={{ color: BLUE, opacity: 1 }}
+              >
+                Not sure? Help me figure it out →
+              </button>
             </div>
           </StepFrame>
         )}
@@ -597,7 +608,8 @@ export function IntakePage() {
             nextLabel="Unravel"
             nextPrimary
           >
-            <div style={{ marginTop: 16, maxWidth: 560, margin: "16px auto 0" }}>
+            {/* Centered input — user request #6 */}
+            <div style={{ display: "flex", justifyContent: "center", marginTop: 16 }}>
               <input
                 type="text"
                 value={state.mbti ?? ""}
@@ -616,6 +628,7 @@ export function IntakePage() {
                   outline: "none",
                   fontFamily: "var(--app-font-body)",
                   background: "white",
+                  textAlign: "center",
                 }}
               />
             </div>

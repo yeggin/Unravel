@@ -162,16 +162,27 @@
   background: currentColor;
 }
 
-/* ── Intensity slider diamond thumb ─────────────────────────────────────── */
+/* ── Intensity slider — 2px track, sharp-cornered diamond thumb ─────────── */
+.intensity-slider [data-radix-slider-track],
+.intensity-slider [role="group"] > span:first-child > span:first-child {
+  height: 2px !important;
+  background: #d1dce8 !important;
+  border-radius: 0 !important;
+}
+.intensity-slider [data-radix-slider-range] {
+  background: #0088ff !important;
+  border-radius: 0 !important;
+}
 .intensity-slider [role="slider"] {
   transform: rotate(45deg);
-  border-radius: 2px !important;
+  border-radius: 0 !important;   /* sharp corners = diamond shape */
   width: 14px !important;
   height: 14px !important;
   border: none !important;
   box-shadow: none !important;
   background: #0088ff !important;
   cursor: pointer;
+  outline: none !important;
 }
 
 /* ── Attachment cards ────────────────────────────────────────────────────── */
@@ -181,11 +192,15 @@
   border-radius: 0.5rem;
   padding: 1.25rem 1rem;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, border-width 0.1s;
   text-align: left;
 }
 .attachment-card:hover { border-color: #80bbff; }
-.attachment-card.selected { border-color: #0088ff; background: #f0f7ff; }
+/* Selected: 2px border, NO background fill */
+.attachment-card.selected {
+  border: 2px solid #0088ff;
+  background: white;
+}
 
 /* ── Family / quiz answer rows ──────────────────────────────────────────── */
 .answer-row {
