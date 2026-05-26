@@ -102,7 +102,7 @@ function AnimatedBorderDots({
 
     // Initial balls — placed roughly where the static dots used to live
     const balls: Ball[] = [
-      { trackId: "top-short", pos: 42, vel: 28 },
+      { trackId: "left-up", pos: 20, vel: 28 },
       { trackId: "top-long", pos: 260, vel: -22 },
       { trackId: "right-up", pos: 0, vel: 26 },
       { trackId: "right-up", pos: 18, vel: -30 },
@@ -126,6 +126,9 @@ function AnimatedBorderDots({
         // right vertical — gap at 40% from top
         { id: "right-up", axis: "v", x: w, min: -19, max: h * 0.4 - 8 },
         { id: "right-down", axis: "v", x: w, min: h * 0.4 + 8, max: h + 15 },
+        // left vertical — gap at 80% from top
+        { id: "left-up", axis: "v", x: 0, min: -19, max: h * 0.8 - 8 },
+        { id: "left-down", axis: "v", x: 0, min: h * 0.8 + 8, max: h + 24 },
       ];
       // clamp balls so a resize doesn't strand them outside their track
       for (const b of balls) {
