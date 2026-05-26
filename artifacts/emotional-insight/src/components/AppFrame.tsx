@@ -2,19 +2,17 @@ import type { ReactNode, CSSProperties } from "react";
 import beadClear from "@assets/Frame_25_1779763600429.png";
 import beadBlue from "@assets/Frame_27_1779763600429.png";
 import beadClover from "@assets/Frame_18_1779763600428.png";
-import beadSquare from "@assets/Frame_19_1779763600429.png";
 import beadPink from "@assets/Frame_26_1779763600429.png";
 import beadKey from "@assets/Frame_16_1779763600426.png";
 import knotA from "@assets/Frame_21_1779761517804.png";
 import knotB from "@assets/Frame_22_1779761986456.png";
 
-/* Bead images in step order: clear, blue, grey clover, clear, square, pink, key */
+/* Bead images in step order: clear, blue, clover, clear, pink, key (6 beads) */
 const BEAD_IMAGES = [
   beadClear,
   beadBlue,
   beadClover,
   beadClear,
-  beadSquare,
   beadPink,
   beadKey,
 ];
@@ -36,7 +34,7 @@ const BEAD_IMAGES = [
  *   Bottom extend:  24px below bottom line
  */
 
-const TOTAL_BEADS = 7;
+const TOTAL_BEADS = 6;
 const BLUE = "#0088ff";
 const DOT_R = 4; // radius → 8×8px circles
 
@@ -176,7 +174,7 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
           aria-label="Progress"
         >
           {/* Knot — left of progress indicators, subtle alternation animation */}
-          <div className="knot-wrap" aria-hidden style={{ width: 72, height: 36, position: "relative", flexShrink: 0 }}>
+          <div className="knot-wrap" aria-hidden style={{ width: 92, height: 46, position: "relative", flexShrink: 0 }}>
             <img src={knotA} alt="" className="knot-img knot-a" />
             <img src={knotB} alt="" className="knot-img knot-b" />
           </div>
