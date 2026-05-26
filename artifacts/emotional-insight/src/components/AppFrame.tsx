@@ -7,14 +7,14 @@ import beadKey from "@assets/Frame_16_1779763600426.png";
 import knotA from "@assets/Frame_21_1779761517804.png";
 import knotB from "@assets/Frame_22_1779761986456.png";
 
-/* Bead images in step order: clear, blue, clover, clear, pink, key (6 beads) */
+/* Bead images in step order: clear, blue, clover, pink, key, clear (6 beads) */
 const BEAD_IMAGES = [
   beadClear,
   beadBlue,
   beadClover,
-  beadClear,
   beadPink,
   beadKey,
+  beadClear,
 ];
 
 /*

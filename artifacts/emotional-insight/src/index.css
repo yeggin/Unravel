@@ -158,6 +158,12 @@
 .bead-slot[data-bead-index="5"] .bead-img { animation-delay: -4.25s; }
 .bead-slot[data-bead-index="6"] .bead-img { animation-delay: -5.1s; }
 
+/* Clover (index 2) is visually a bit smaller than the others — scale it up slightly */
+.bead-slot[data-bead-index="2"] .bead-img {
+  width: 42px;
+  height: 42px;
+}
+
 /* ── Knot (left of progress bar) — alternates between two frames ────────── */
 .knot-wrap { display: inline-block; }
 .knot-img {
