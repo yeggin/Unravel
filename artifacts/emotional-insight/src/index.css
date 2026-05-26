@@ -249,7 +249,7 @@
 .attachment-card.selected {
   border-color: #0088ff;
   background: white;
-  box-shadow: 0 0 0 2px #0088ff;
+  box-shadow: 0 0 0 1px #0088ff;
 }
 
 /* ── Family / quiz answer rows ──────────────────────────────────────────── */
@@ -270,7 +270,7 @@
 .answer-row.selected {
   border-color: #0088ff;
   background: #f0f7ff;
-  box-shadow: 0 0 0 2px #0088ff;
+  box-shadow: 0 0 0 1px #0088ff;
 }
 
 /* ── Navigation buttons ─────────────────────────────────────────────────── */

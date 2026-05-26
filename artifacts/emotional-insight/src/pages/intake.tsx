@@ -294,21 +294,7 @@ export function IntakePage() {
               onClick={submit}
               disabled={analyzeMutation.isPending}
               data-testid="button-submit-quick"
-              style={{
-                background: "#6dbbff",
-                border: "1px solid #47a8fd",
-                borderRadius: 6,
-                padding: "0 24px",
-                height: 44,
-                color: "white",
-                fontFamily: "var(--app-font-body)",
-                fontWeight: 500,
-                fontSize: "1.125rem",
-                cursor: "pointer",
-                transition: "background 0.2s",
-                minWidth: 140,
-                letterSpacing: "0.01em",
-              }}
+              className="nav-btn-continue primary-fill"
             >
               Unravel
             </button>

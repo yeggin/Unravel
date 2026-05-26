@@ -1,4 +1,4 @@
-import type { ReactNode, CSSProperties } from "react";
+import { useEffect, useRef, type ReactNode, type CSSProperties } from "react";
 import beadClear from "@assets/Frame_25_1779764468100.svg";
 import beadBlue from "@assets/Frame_27_1779764468101.svg";
 import beadClover from "@assets/Frame_18_1779764468100.svg";
@@ -72,22 +72,172 @@ function VLine({ style }: { style: CSSProperties }) {
     />
   );
 }
-function Dot({ dataDot, style }: { dataDot: string; style: CSSProperties }) {
+/*
+ * ── Animated border balls ──────────────────────────────────────────────────
+ * Each ball lives on a single line "track" (a continuous segment of the
+ * blue frame). It slides back and forth. When it reaches the end of its
+ * track (a corner OR a gap in the line) it reverses direction. When two
+ * balls on the same track collide head-on, they swap velocities (elastic
+ * 1-D collision) so the bump is visible.
+ */
+type Track =
+  | { id: string; axis: "h"; y: number; min: number; max: number }
+  | { id: string; axis: "v"; x: number; min: number; max: number };
+type Ball = { trackId: string; pos: number; vel: number };
+
+function AnimatedBorderDots({
+  containerRef,
+}: {
+  containerRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  // 7 balls — refs into the rendered span elements
+  const ballRefs = useRef<Array<HTMLSpanElement | null>>([]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const PAD = 24; // matches how far the lines extend past the corners
+    const COLLISION_DIST = 10; // px gap below which two balls "bump"
+
+    // Initial balls — placed roughly where the static dots used to live
+    const balls: Ball[] = [
+      { trackId: "top-short", pos: 42, vel: 28 },
+      { trackId: "top-long", pos: 260, vel: -22 },
+      { trackId: "right-up", pos: 0, vel: 26 },
+      { trackId: "right-up", pos: 18, vel: -30 },
+      { trackId: "bottom-left", pos: 18, vel: 24 },
+      { trackId: "bottom-left", pos: 30, vel: -27 },
+      { trackId: "bottom-right", pos: 600, vel: -23 },
+    ];
+
+    let tracks: Track[] = [];
+
+    function rebuildTracks() {
+      const w = container!.offsetWidth;
+      const h = container!.offsetHeight;
+      tracks = [
+        // top line, broken into short (left of gap) + long (right of gap)
+        { id: "top-short", axis: "h", y: 0, min: -PAD, max: 95 },
+        { id: "top-long", axis: "h", y: 0, min: 120, max: w + PAD },
+        // bottom line — gap at 60% from left
+        { id: "bottom-left", axis: "h", y: h, min: -PAD, max: w * 0.6 - 8 },
+        { id: "bottom-right", axis: "h", y: h, min: w * 0.6 + 8, max: w + PAD },
+        // right vertical — gap at 40% from top
+        { id: "right-up", axis: "v", x: w, min: -19, max: h * 0.4 - 8 },
+        { id: "right-down", axis: "v", x: w, min: h * 0.4 + 8, max: h + 15 },
+      ];
+      // clamp balls so a resize doesn't strand them outside their track
+      for (const b of balls) {
+        const t = tracks.find((tr) => tr.id === b.trackId);
+        if (!t) continue;
+        if (b.pos < t.min) b.pos = t.min;
+        if (b.pos > t.max) b.pos = t.max;
+      }
+    }
+
+    rebuildTracks();
+    const ro = new ResizeObserver(rebuildTracks);
+    ro.observe(container);
+
+    let raf = 0;
+    let last = performance.now();
+    function tick(now: number) {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+
+      // 1) move + reverse at corners/gaps
+      for (const b of balls) {
+        const t = tracks.find((tr) => tr.id === b.trackId);
+        if (!t) continue;
+        b.pos += b.vel * dt;
+        if (b.pos < t.min) {
+          b.pos = t.min;
+          b.vel = Math.abs(b.vel);
+        } else if (b.pos > t.max) {
+          b.pos = t.max;
+          b.vel = -Math.abs(b.vel);
+        }
+      }
+
+      // 2) elastic 1-D collisions between balls on the same track
+      for (let i = 0; i < balls.length; i++) {
+        for (let j = i + 1; j < balls.length; j++) {
+          const a = balls[i];
+          const b = balls[j];
+          if (a.trackId !== b.trackId) continue;
+          const gap = b.pos - a.pos;
+          if (Math.abs(gap) < COLLISION_DIST) {
+            const movingTogether = gap > 0 ? a.vel > b.vel : b.vel > a.vel;
+            if (movingTogether) {
+              const tmp = a.vel;
+              a.vel = b.vel;
+              b.vel = tmp;
+              // nudge apart so they don't stay overlapping next frame
+              const sep = (COLLISION_DIST - Math.abs(gap)) / 2 + 0.5;
+              if (gap >= 0) {
+                a.pos -= sep;
+                b.pos += sep;
+              } else {
+                a.pos += sep;
+                b.pos -= sep;
+              }
+            }
+          }
+        }
+      }
+
+      // 3) write to DOM
+      for (let i = 0; i < balls.length; i++) {
+        const el = ballRefs.current[i];
+        if (!el) continue;
+        const b = balls[i];
+        const t = tracks.find((tr) => tr.id === b.trackId);
+        if (!t) continue;
+        if (t.axis === "h") {
+          el.style.left = `${b.pos - DOT_R}px`;
+          el.style.top = `${t.y - DOT_R}px`;
+        } else {
+          el.style.left = `${t.x - DOT_R}px`;
+          el.style.top = `${b.pos - DOT_R}px`;
+        }
+      }
+
+      raf = requestAnimationFrame(tick);
+    }
+    raf = requestAnimationFrame(tick);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, [containerRef]);
+
   return (
-    <span
-      className="frame-dot"
-      data-dot={dataDot}
-      aria-hidden
-      style={{
-        width: DOT_R * 2,
-        height: DOT_R * 2,
-        ...style,
-      }}
-    />
+    <>
+      {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+        <span
+          key={i}
+          ref={(el) => {
+            ballRefs.current[i] = el;
+          }}
+          className="frame-dot"
+          aria-hidden
+          style={{
+            width: DOT_R * 2,
+            height: DOT_R * 2,
+            left: 0,
+            top: 0,
+            willChange: "left, top",
+          }}
+        />
+      ))}
+    </>
   );
 }
 
 export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
+  const frameRef = useRef<HTMLDivElement | null>(null);
   return (
     /*
      * PAGE ROOT — thick outer blue border (Figma: border-[4.609px] solid #08f)
@@ -234,6 +384,7 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
          *   Ext below:   left=0, bottom=-24, height=24
          */}
         <div
+          ref={frameRef}
           style={{
             position: "relative",
             width: "100%",
@@ -260,16 +411,13 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
             }}
           />
 
-          {/* ── Top-left short segment — starts 12px LEFT of frame ── */}
-          <HLine style={{ left: -12, top: 0, width: 107 }} />
-
-          {/* ── Dot on the short segment — on the line (center at ~45px from frame left) ── */}
-          <Dot dataDot="top-left" style={{ left: 42, top: -DOT_R }} />
+          {/* ── Top-left short segment — starts 24px LEFT of frame ── */}
+          <HLine style={{ left: -24, top: 0, width: 119 }} />
 
           {/*
-           * ── Top-right long segment — extends 12px PAST the right vertical ──
+           * ── Top-right long segment — extends 24px PAST the right vertical ──
            */}
-          <HLine style={{ left: 120, top: 0, right: -12 }} />
+          <HLine style={{ left: 120, top: 0, right: -24 }} />
 
           {/*
            * ── Right vertical — gap at 2/5 (40%) from top, extended 15px below ──
@@ -288,36 +436,26 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
           />
 
           {/*
-           * ── Top-right dots — upper dot intersects both horizontal AND vertical lines ──
-           * Upper: center at (right:0, top:0) = the corner intersection → right:-DOT_R, top:-DOT_R
-           * Lower: ~16px below upper
-           */}
-          <Dot dataDot="top-right-upper" style={{ right: -DOT_R, top: -DOT_R }} />
-          <Dot dataDot="top-right-lower" style={{ right: -DOT_R, top: DOT_R * 3 + 4 }} />
-
-          {/*
-           * ── Bottom horizontal — extends 12px past BOTH verticals, gap at 3/5 (60%) from left ──
+           * ── Bottom horizontal — extends 24px past BOTH verticals, gap at 3/5 (60%) from left ──
            */}
           <div
             aria-hidden
             style={{
               position: "absolute",
               height: 1,
-              left: -12,
-              right: -12,
+              left: -24,
+              right: -24,
               bottom: 0,
               background: `linear-gradient(to right, ${BLUE} 0%, ${BLUE} calc(60% - 8px), transparent calc(60% - 8px), transparent calc(60% + 8px), ${BLUE} calc(60% + 8px), ${BLUE} 100%)`,
               pointerEvents: "none",
             }}
           />
 
-          {/* ── Bottom dots — left pair closer together, right moved slightly right ── */}
-          <Dot dataDot="bottom-left-1" style={{ left: 18, bottom: -DOT_R }} />
-          <Dot dataDot="bottom-left-2" style={{ left: 30, bottom: -DOT_R }} />
-          <Dot dataDot="bottom-right"  style={{ left: "82%", bottom: -DOT_R }} />
-
           {/* ── Bottom-left vertical extension ── */}
           <VLine style={{ left: 0, bottom: -24, height: 24 }} />
+
+          {/* ── Animated border balls — slide along their line, reverse at corners/gaps, bump on collision ── */}
+          <AnimatedBorderDots containerRef={frameRef} />
 
           {/*
            * CONTENT PANEL — rgba(255,255,255,0.59) semi-transparent white
