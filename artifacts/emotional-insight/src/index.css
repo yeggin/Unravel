@@ -160,8 +160,8 @@
 
 /* Clover (index 2) is visually a bit smaller than the others — scale it up */
 .bead-slot[data-bead-index="2"] .bead-img {
-  width: 56px;
-  height: 56px;
+  width: 68px;
+  height: 68px;
 }
 
 /* ── Knot (left of progress bar) — alternates between two frames ────────── */
