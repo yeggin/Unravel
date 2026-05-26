@@ -1,4 +1,23 @@
 import type { ReactNode, CSSProperties } from "react";
+import beadClear from "@assets/Frame_15_1779761517801.png";
+import beadKey from "@assets/Frame_16_1779761517802.png";
+import beadPink from "@assets/Frame_17_1779761517803.png";
+import beadClover from "@assets/Frame_18_1779761517803.png";
+import beadSquare from "@assets/Frame_19_1779761517803.png";
+import beadBlue from "@assets/Frame_20_1779761517803.png";
+import knotA from "@assets/Frame_21_1779761517804.png";
+import knotB from "@assets/Frame_22_1779761986456.png";
+
+/* Bead images in step order: clear, blue, grey clover, clear, square, pink, key */
+const BEAD_IMAGES = [
+  beadClear,
+  beadBlue,
+  beadClover,
+  beadClear,
+  beadSquare,
+  beadPink,
+  beadKey,
+];
 
 /*
  * AppFrame — full-page viewport shell matching the Figma design (node 138:2)
@@ -146,48 +165,28 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
             maxWidth: 1000,
             display: "flex",
             alignItems: "center",
-            position: "relative",
+            justifyContent: "center",
             marginBottom: 18,
             minHeight: 78,
+            gap: 36,
           }}
           role="progressbar"
           aria-valuenow={currentBead}
           aria-valuemax={TOTAL_BEADS}
           aria-label="Progress"
         >
-          {/* Monogram — 106×78px window, pinned to the left */}
-          <div
-            style={{
-              width: 106,
-              height: 78,
-              overflow: "hidden",
-              position: "relative",
-              flexShrink: 0,
-            }}
-            aria-label="unravel"
-          >
-            <img
-              src="/figma-assets/monogram.png"
-              alt=""
-              style={{
-                position: "absolute",
-                left: -21,
-                top: -43,
-                width: 666,
-                maxWidth: "none",
-              }}
-            />
+          {/* Knot — left of progress indicators, subtle alternation animation */}
+          <div className="knot-wrap" aria-hidden style={{ width: 72, height: 36, position: "relative", flexShrink: 0 }}>
+            <img src={knotA} alt="" className="knot-img knot-a" />
+            <img src={knotB} alt="" className="knot-img knot-b" />
           </div>
 
-          {/* 7 beads — absolutely centered so they sit in the middle of the bar */}
+          {/* 7 beads */}
           <div
             style={{
-              position: "absolute",
-              left: "50%",
-              transform: "translateX(-50%)",
               display: "flex",
               alignItems: "center",
-              gap: 55,
+              gap: 40,
             }}
           >
             {Array.from({ length: TOTAL_BEADS }).map((_, i) => {
@@ -207,7 +206,7 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
                     beadState === "current" ? " (current)" : beadState === "completed" ? " (done)" : ""
                   }`}
                 >
-                  <div className="bead-default" />
+                  <img src={BEAD_IMAGES[i]} alt="" className="bead-img" />
                 </div>
               );
             })}

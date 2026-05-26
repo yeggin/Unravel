@@ -108,38 +108,61 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 12px;
-  height: 12px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
 }
 
-.bead-default {
-  /* Smaller diamonds — user request */
-  width: 8px;
-  height: 8px;
-  transform: rotate(45deg);
-  background: #b0b8c4;
-  border: none;
-  border-radius: 0;
-  flex-shrink: 0;
-  transition: background 0.3s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+.bead-img {
+  width: 28px;
+  height: 28px;
+  display: block;
+  object-fit: contain;
+  /* Slow rotation animation: -45deg ↔ +45deg */
+  animation: bead-rock 6s ease-in-out infinite;
+  transform-origin: 50% 50%;
+  transition: opacity 0.3s ease;
 }
 
-.bead-slot[data-bead-state="completed"] .bead-default {
-  background: #0088ff;
-  opacity: 0.4;
+@keyframes bead-rock {
+  0%   { transform: rotate(-45deg); }
+  50%  { transform: rotate(45deg); }
+  100% { transform: rotate(-45deg); }
 }
 
-.bead-slot[data-bead-state="current"] .bead-default {
-  width: 10px;
-  height: 10px;
-  background: #0088ff;
-  opacity: 1;
-}
+/* Stagger each bead so they don't rock in lockstep */
+.bead-slot[data-bead-index="0"] .bead-img { animation-delay: 0s; }
+.bead-slot[data-bead-index="1"] .bead-img { animation-delay: -0.85s; }
+.bead-slot[data-bead-index="2"] .bead-img { animation-delay: -1.7s; }
+.bead-slot[data-bead-index="3"] .bead-img { animation-delay: -2.55s; }
+.bead-slot[data-bead-index="4"] .bead-img { animation-delay: -3.4s; }
+.bead-slot[data-bead-index="5"] .bead-img { animation-delay: -4.25s; }
+.bead-slot[data-bead-index="6"] .bead-img { animation-delay: -5.1s; }
 
-.bead-slot[data-bead-state="upcoming"] .bead-default {
-  background: #b0b8c4;
-  opacity: 1;
+.bead-slot[data-bead-state="upcoming"] .bead-img { opacity: 0.5; }
+.bead-slot[data-bead-state="completed"] .bead-img { opacity: 0.85; }
+.bead-slot[data-bead-state="current"] .bead-img { opacity: 1; }
+
+/* ── Knot (left of progress bar) — alternates between two frames ────────── */
+.knot-wrap { display: inline-block; }
+.knot-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.knot-a { animation: knot-fade-a 2.4s ease-in-out infinite; }
+.knot-b { animation: knot-fade-b 2.4s ease-in-out infinite; }
+@keyframes knot-fade-a {
+  0%, 45%   { opacity: 1; }
+  55%, 95%  { opacity: 0; }
+  100%      { opacity: 1; }
+}
+@keyframes knot-fade-b {
+  0%, 45%   { opacity: 0; }
+  55%, 95%  { opacity: 1; }
+  100%      { opacity: 0; }
 }
 
 /* ── Selection diamonds (chip list) ────────────────────────────────────────── */
