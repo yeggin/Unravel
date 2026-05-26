@@ -1,10 +1,10 @@
 import type { ReactNode, CSSProperties } from "react";
-import beadClear from "@assets/Frame_15_1779761517801.png";
-import beadKey from "@assets/Frame_16_1779761517802.png";
-import beadPink from "@assets/Frame_17_1779761517803.png";
-import beadClover from "@assets/Frame_18_1779761517803.png";
-import beadSquare from "@assets/Frame_19_1779761517803.png";
-import beadBlue from "@assets/Frame_20_1779761517803.png";
+import beadClear from "@assets/Frame_25_1779763600429.png";
+import beadBlue from "@assets/Frame_27_1779763600429.png";
+import beadClover from "@assets/Frame_18_1779763600428.png";
+import beadSquare from "@assets/Frame_19_1779763600429.png";
+import beadPink from "@assets/Frame_26_1779763600429.png";
+import beadKey from "@assets/Frame_16_1779763600426.png";
 import knotA from "@assets/Frame_21_1779761517804.png";
 import knotB from "@assets/Frame_22_1779761986456.png";
 
@@ -206,7 +206,11 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
                     beadState === "current" ? " (current)" : beadState === "completed" ? " (done)" : ""
                   }`}
                 >
-                  <img src={BEAD_IMAGES[i]} alt="" className="bead-img" />
+                  {beadState === "completed" ? (
+                    <img src={BEAD_IMAGES[i]} alt="" className="bead-img" />
+                  ) : (
+                    <div className="bead-default" />
+                  )}
                 </div>
               );
             })}

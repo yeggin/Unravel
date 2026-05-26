@@ -113,6 +113,26 @@
   flex-shrink: 0;
 }
 
+/* Diamond placeholder shown for upcoming + current beads */
+.bead-default {
+  width: 8px;
+  height: 8px;
+  transform: rotate(45deg);
+  background: #b0b8c4;
+  border: none;
+  border-radius: 0;
+  flex-shrink: 0;
+  transition: background 0.3s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+}
+.bead-slot[data-bead-state="current"] .bead-default {
+  width: 10px;
+  height: 10px;
+  background: #0088ff;
+}
+.bead-slot[data-bead-state="upcoming"] .bead-default {
+  background: #b0b8c4;
+}
+
 .bead-img {
   width: 28px;
   height: 28px;
@@ -121,7 +141,6 @@
   /* Slow rotation animation: -45deg ↔ +45deg */
   animation: bead-rock 6s ease-in-out infinite;
   transform-origin: 50% 50%;
-  transition: opacity 0.3s ease;
 }
 
 @keyframes bead-rock {
@@ -138,10 +157,6 @@
 .bead-slot[data-bead-index="4"] .bead-img { animation-delay: -3.4s; }
 .bead-slot[data-bead-index="5"] .bead-img { animation-delay: -4.25s; }
 .bead-slot[data-bead-index="6"] .bead-img { animation-delay: -5.1s; }
-
-.bead-slot[data-bead-state="upcoming"] .bead-img { opacity: 0.5; }
-.bead-slot[data-bead-state="completed"] .bead-img { opacity: 0.85; }
-.bead-slot[data-bead-state="current"] .bead-img { opacity: 1; }
 
 /* ── Knot (left of progress bar) — alternates between two frames ────────── */
 .knot-wrap { display: inline-block; }
