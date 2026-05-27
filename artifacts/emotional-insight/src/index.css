@@ -360,42 +360,57 @@
 .chain-art .chain-bead.visible { opacity: 1; }
 .chain-art .chain-bead.locked { cursor: default; opacity: 0.35; pointer-events: none; }
 .chain-art .chain-bead img { display: block; width: 100%; height: 100%; pointer-events: none; }
-/* Past/clickable beads have a soft blue glow */
-.chain-art .chain-bead.past,
-.chain-art .chain-bead.next {
-  filter: drop-shadow(0 0 6px rgba(0,136,255,0.55)) drop-shadow(0 0 12px rgba(0,136,255,0.32));
+/* Decorative beads (3rd clear, pink) — no glow, no pointer affordance. */
+.chain-art .chain-bead.decorative {
+  filter: none !important;
+  cursor: default;
 }
-/* Current bead: keep the soft glow AND draw a pulsing outline whose shape
-   roughly matches the bead silhouette (circle / rounded-square / tall pill). */
+.chain-art .chain-bead.decorative::after { content: none; }
+
+/* Clickable past/next beads — soft blue glow */
+.chain-art .chain-bead.past:not(.decorative),
+.chain-art .chain-bead.next:not(.decorative) {
+  filter: drop-shadow(0 0 5px rgba(0,136,255,0.45)) drop-shadow(0 0 10px rgba(0,136,255,0.25));
+}
+/* Current bead — lighter single drop-shadow keeps the SVG crisp (heavy filters
+   were causing the bead to look low-res). The pulsing ring carries the emphasis. */
 .chain-art .chain-bead.current {
-  filter: drop-shadow(0 0 8px rgba(0,136,255,0.75)) drop-shadow(0 0 14px rgba(0,136,255,0.45));
+  filter: drop-shadow(0 0 5px rgba(0,136,255,0.55));
 }
 .chain-art .chain-bead.current::after {
   content: "";
   position: absolute;
   inset: -8px;
-  border: 2px solid rgba(0,136,255,0.7);
   pointer-events: none;
   animation: bead-pulse-ring 1.8s ease-in-out infinite;
+  /* Default: circular ring via border. */
+  border: 2px solid rgba(0,136,255,0.7);
+  border-radius: 9999px;
 }
-/* Default ring shape — round (covers clear / blue / pink / clover). */
-.chain-art .chain-bead.current::after { border-radius: 9999px; }
-/* Lock = rounded square ring. */
+/* Lock = square outline drawn from the supplied SVG outline (precise shape). */
 .chain-art .chain-bead.current[data-pulse-shape="square"]::after {
-  border-radius: 14px;
   inset: -6px;
+  border: none;
+  border-radius: 0;
+  background-image: var(--pulse-square);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
-/* Key = tall rounded pill ring. */
+/* Key = key-shaped outline from the supplied SVG outline. */
 .chain-art .chain-bead.current[data-pulse-shape="pill"]::after {
-  border-radius: 26px;
-  inset: -6px -8px;
+  inset: -4px -6px;
+  border: none;
+  border-radius: 0;
+  background-image: var(--pulse-pill);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 @keyframes bead-pulse-ring {
   0%, 100% { transform: scale(1);    opacity: 0.85; }
   50%      { transform: scale(1.18); opacity: 0;    }
 }
-.chain-art .chain-bead.past:hover,
-.chain-art .chain-bead.next:hover { transform: scale(1.08); }
+.chain-art .chain-bead.past:not(.decorative):hover,
+.chain-art .chain-bead.next:not(.decorative):hover { transform: scale(1.08); }
 
 /* ── Output cards (Why, Shift, What you can do) ─────────────────────────── */
 .out-card {
@@ -415,6 +430,10 @@
   border-color: #0088ff;
   box-shadow: 0 0 0 1px #0088ff;
 }
+/* Lift hovered/focused card above siblings so its theory tooltip can
+   visually overflow into the cards below. */
+.out-card:hover,
+.out-card:focus-within { z-index: 5; }
 /* Collapsed cards center their title vertically (single line, breathable height). */
 .out-card.collapsed {
   padding: 0 22px;
@@ -442,6 +461,9 @@
   color: #a8b3c1;
   cursor: help;
   display: inline-block;
+  /* Anchor the absolutely-positioned theory tooltip to THIS span so it
+     sits directly above the "Drawn from …" trigger, not above the whole card. */
+  position: relative;
 }
 .out-card .out-card-source a {
   color: #a8b3c1;
@@ -451,12 +473,13 @@
 .out-card .out-card-source:hover a { color: #0088ff; }
 
 /* Theory tooltip — blue dialogue box on hover/focus.
-   Overlaps the white card slightly so cursor can travel from trigger → tip
-   without crossing a dead zone (which was hiding the "Learn more" link). */
+   Anchored to the "Drawn from … Theory." trigger span. Sits just above with
+   no dead gap (cursor can travel into the tip and read "Learn more"). */
 .theory-tip {
   position: absolute;
-  left: 0;
-  bottom: calc(100% - 6px);   /* overlap trigger by ~6px — no dead gap */
+  left: -6px;
+  bottom: 100%;               /* directly above the trigger, touching */
+  margin-bottom: 2px;
   background: #0088ff;
   color: white;
   padding: 14px 16px;

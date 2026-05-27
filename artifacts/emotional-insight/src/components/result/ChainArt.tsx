@@ -6,6 +6,8 @@ import beadClover from "@assets/Frame_28_1779916770846.svg";
 import beadLock from "@assets/Subtract_1779916770856.svg";
 import beadKey from "@assets/Union_1779916770856.svg";
 import stringSvg from "@assets/Group_20_1779916770856.svg";
+import squareOutline from "@assets/outline_1779919260546.svg";
+import keyOutline from "@assets/Key_outline_1779919285967.svg";
 
 /**
  * Chain layout — 8 beads total along the curving string, 6 are clickable
@@ -64,16 +66,25 @@ interface ChainArtProps {
 
 export function ChainArt({ currentStage, animateInitial, onBeadClick }: ChainArtProps) {
   function beadClass(b: BeadDef): string {
+    const dec = b.decorative ? " decorative" : "";
     if (b.stage === currentStage) {
-      return b.representative ? "chain-bead current visible" : "chain-bead past visible";
+      return `chain-bead visible${b.representative ? " current" : " past"}${dec}`;
     }
-    if (b.stage < currentStage) return "chain-bead past visible";
-    if (b.stage === currentStage + 1) return "chain-bead next visible";
-    return "chain-bead visible locked";
+    if (b.stage < currentStage) return `chain-bead past visible${dec}`;
+    if (b.stage === currentStage + 1) return `chain-bead next visible${dec}`;
+    return `chain-bead visible locked${dec}`;
   }
 
   return (
-    <div className="chain-art" aria-label="Insight chain progress">
+    <div
+      className="chain-art"
+      aria-label="Insight chain progress"
+      style={{
+        // Expose the shape-specific outline SVGs to CSS via custom properties.
+        ["--pulse-square" as string]: `url(${squareOutline})`,
+        ["--pulse-pill" as string]: `url(${keyOutline})`,
+      }}
+    >
       <motion.img
         src={stringSvg}
         alt=""
