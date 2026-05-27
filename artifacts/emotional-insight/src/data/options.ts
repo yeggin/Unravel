@@ -64,16 +64,16 @@ export const ATTACHMENT_OPTIONS: { value: AttachmentStyle; label: string; descri
   { value: "disorganized", label: "Disorganized", description: "Want closeness but it also scares me" },
 ];
 
-export const FAMILY_PATTERN_OPTIONS: FamilyPattern[] = [
-  "Emotionally distant parent",
-  "High-pressure / achievement-focused home",
-  "I was the peacekeeper",
-  "Unpredictable or unstable home environment",
-  "Love felt conditional on my behavior",
-  "I learned not to show weakness",
-  "A parent leaned on me emotionally",
-  "Conflict was avoided at all costs",
-  "I felt invisible or unheard",
+export const FAMILY_PATTERN_OPTIONS: { value: FamilyPattern; label: string }[] = [
+  { value: "emotionally distant parent", label: "Emotionally distant parent" },
+  { value: "high-pressure / achievement-focused home", label: "High-pressure / achievement-focused home" },
+  { value: "I was the peacekeeper", label: "I was the peacekeeper" },
+  { value: "unpredictable or unstable home environment", label: "Unpredictable or unstable home environment" },
+  { value: "love felt conditional on my behavior", label: "Love felt conditional on my behavior" },
+  { value: "I learned not to show weakness", label: "I learned not to show weakness" },
+  { value: "a parent leaned on me emotionally", label: "A parent leaned on me emotionally" },
+  { value: "conflict was avoided at all costs", label: "Conflict was avoided at all costs" },
+  { value: "I felt invisible or unheard", label: "I felt invisible or unheard" },
 ];
 
 // --- Attachment quiz: behavioral, not self-concept ---

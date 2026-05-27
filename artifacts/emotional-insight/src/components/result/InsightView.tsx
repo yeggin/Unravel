@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Sparkles, RotateCcw, Bookmark, Share2, ChevronRight, ChevronLeft } from "lucide-react";
+import { AppFrame } from "@/components/AppFrame";
+import { ChainArt } from "./ChainArt";
 import type { AnalyzeReflectionResponseType } from "@/lib/api";
 
 interface InsightViewProps {
@@ -11,440 +11,481 @@ interface InsightViewProps {
   onSaveShare: () => void;
 }
 
-const STEPS = ["Emotion", "Why", "Reframe", "What to do", "Closing"] as const;
-type Step = (typeof STEPS)[number];
+const BLUE = "#0088ff";
 
-const slideVariants = {
-  enter: (dir: number) => ({
-    x: dir > 0 ? 48 : -48,
-    opacity: 0,
-  }),
-  center: { x: 0, opacity: 1 },
-  exit: (dir: number) => ({
-    x: dir > 0 ? -48 : 48,
-    opacity: 0,
-  }),
-};
+/**
+ * Output flow — 5 chain stages with an intermission animation between
+ * Shift (stage 2) and "What you can do" (stage 3).
+ *
+ *   0  Emotion              — chain reveal animation
+ *   1  Why is this happening — collapsible boxes (CBT/IFS/NVC sources)
+ *   2  A different angle    — pattern vs. truth
+ *      [intermission]       — diamond burst transition
+ *   3  What you can do      — DBT-flavored action card
+ *   4  Take it with you     — affirmation + CTAs
+ */
+
+const TOTAL_STAGES = 5;
 
 export function InsightView({ result, onReset, onBuildPlan, onSaveShare }: InsightViewProps) {
-  const [stepIdx, setStepIdx] = useState(0);
-  const [direction, setDirection] = useState(1);
+  const [stage, setStage] = useState(0);
+  const [showIntermission, setShowIntermission] = useState(false);
 
-  function go(idx: number) {
-    setDirection(idx > stepIdx ? 1 : -1);
-    setStepIdx(idx);
+  // The Emotion stage uses a one-time cascade reveal animation.
+  // After the user navigates away once, subsequent visits don't replay it.
+  const [emotionAnimated, setEmotionAnimated] = useState(false);
+  useEffect(() => {
+    if (emotionAnimated) return;
+    // Mark "animated" as soon as the user leaves stage 0 OR after the cascade
+    // has had time to play — whichever comes first. Prevents replay on return.
+    if (stage !== 0) {
+      setEmotionAnimated(true);
+      return;
+    }
+    const t = setTimeout(() => setEmotionAnimated(true), 2200);
+    return () => clearTimeout(t);
+  }, [stage, emotionAnimated]);
+
+  function goToStage(next: number) {
+    if (next < 0 || next >= TOTAL_STAGES) return;
+    // Transition: shift (2) → what you can do (3) plays the intermission first.
+    if (stage === 2 && next === 3) {
+      setShowIntermission(true);
+      window.setTimeout(() => {
+        setShowIntermission(false);
+        setStage(3);
+      }, 2600);
+      return;
+    }
+    setStage(next);
   }
-  function next() { if (stepIdx < STEPS.length - 1) go(stepIdx + 1); }
-  function back() { if (stepIdx > 0) go(stepIdx - 1); }
 
-  const isLast = stepIdx === STEPS.length - 1;
-  const isFirst = stepIdx === 0;
+  function advance() { goToStage(stage + 1); }
+
+  if (showIntermission) {
+    return <Intermission />;
+  }
+
+  const animateInitial = stage === 0 && !emotionAnimated;
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-10 px-4 flex flex-col min-h-screen">
-
-      {/* Chapter progress dots */}
-      <div className="flex items-center justify-center gap-2 mb-10">
-        {STEPS.map((label, i) => (
-          <button
-            key={label}
-            onClick={() => go(i)}
-            aria-label={label}
-            className="group flex flex-col items-center gap-1"
-          >
-            <div
-              className={`h-1.5 rounded-full transition-all duration-500 ${
-                i === stepIdx
-                  ? "w-8 bg-primary"
-                  : i < stepIdx
-                  ? "w-4 bg-primary/40"
-                  : "w-4 bg-border"
-              }`}
-            />
-            <span
-              className={`text-[9px] uppercase tracking-widest transition-colors ${
-                i === stepIdx ? "text-foreground" : "text-muted-foreground/50"
-              }`}
-            >
-              {label}
-            </span>
-          </button>
-        ))}
-      </div>
-
-      {/* Step content — grows to fill */}
-      <div className="flex-1 relative overflow-hidden">
-        <AnimatePresence custom={direction} mode="wait">
-          <motion.div
-            key={stepIdx}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.38, ease: "easeInOut" }}
-            className="w-full"
-          >
-            {stepIdx === 0 && <StepEmotion result={result} />}
-            {stepIdx === 1 && <StepWhy result={result} />}
-            {stepIdx === 2 && <StepReframe result={result} />}
-            {stepIdx === 3 && <StepNextSteps result={result} />}
-            {stepIdx === 4 && (
-              <StepClosing
-                result={result}
-                onBuildPlan={onBuildPlan}
-                onSaveShare={onSaveShare}
-                onReset={onReset}
-              />
-            )}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex items-center justify-between mt-10 pt-6 border-t border-border">
-        <Button
-          variant="ghost"
-          onClick={back}
-          disabled={isFirst}
-          className="gap-1 text-muted-foreground"
-        >
-          <ChevronLeft className="w-4 h-4" /> Back
-        </Button>
-
-        {!isLast && (
-          <Button onClick={next} className="gap-1">
-            Continue <ChevronRight className="w-4 h-4" />
-          </Button>
-        )}
-
-        {isLast && (
-          <Button variant="ghost" onClick={onReset} className="gap-2 text-muted-foreground">
-            <RotateCcw className="w-4 h-4" /> Start over
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ─── STEP 1: Emotion ──────────────────────────────────────────────────────── */
-function StepEmotion({ result }: { result: AnalyzeReflectionResponseType }) {
-  return (
-    <div className="flex flex-col items-center text-center py-8 gap-6">
-      {/* Emotion pulse */}
-      <div className="relative flex items-center justify-center">
-        <div
-          className="absolute w-32 h-32 rounded-full opacity-20 animate-pulse"
-          style={{ backgroundColor: result.emotion_color }}
-        />
-        <div
-          className="relative w-20 h-20 rounded-full flex items-center justify-center text-4xl"
-          style={{ backgroundColor: `${result.emotion_color}30`, border: `2px solid ${result.emotion_color}60` }}
-        >
-          <span
-            className="w-6 h-6 rounded-full"
-            style={{ backgroundColor: result.emotion_color }}
+    // Output flow runs after the 6-step input flow is complete — pass a value
+    // past TOTAL_BEADS so AppFrame's input progressbar reads "all done"
+    // instead of falsely reporting "step 0".
+    <AppFrame currentBead={7}>
+      <div style={{ display: "flex", flex: 1, gap: 32, minHeight: 540 }}>
+        {/* Chain on the left */}
+        <div style={{ flexShrink: 0, paddingTop: 12 }}>
+          <ChainArt
+            currentStage={stage}
+            animateInitial={animateInitial}
+            onBeadClick={(s) => goToStage(s)}
           />
         </div>
-      </div>
 
-      {/* Emotion name */}
-      <div>
-        <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
-          {result.nervous_system_state} · {result.nervous_system_state === "sympathetic"
-            ? "fight or flight"
-            : result.nervous_system_state === "dorsal"
-            ? "shutdown / freeze"
-            : "regulated"}
+        {/* Content on the right */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={stage}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.28 }}
+              style={{ flex: 1, display: "flex", flexDirection: "column" }}
+            >
+              {stage === 0 && <EmotionStep result={result} />}
+              {stage === 1 && <WhyStep result={result} />}
+              {stage === 2 && <ShiftStep result={result} />}
+              {stage === 3 && <WhatYouCanDoStep result={result} />}
+              {stage === 4 && (
+                <TakeItWithYouStep
+                  result={result}
+                  onBuildPlan={onBuildPlan}
+                  onSaveShare={onSaveShare}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Continue / Start over — bottom right of the right column */}
+          <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end" }}>
+            {stage < TOTAL_STAGES - 1 ? (
+              <button
+                type="button"
+                className="nav-btn-continue"
+                onClick={advance}
+                data-testid="button-output-continue"
+              >
+                Continue
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="nav-btn-continue"
+                onClick={onReset}
+                data-testid="button-output-restart"
+              >
+                Start over
+              </button>
+            )}
+          </div>
         </div>
-        <h1 className="font-serif text-4xl md:text-5xl text-foreground mb-2 capitalize">
-          {result.primary_emotion}
-        </h1>
-        {result.secondary_emotion && (
-          <p className="text-base text-muted-foreground italic">
-            with {result.secondary_emotion} underneath
-          </p>
-        )}
       </div>
+    </AppFrame>
+  );
+}
 
-      {/* Headline */}
-      <div className="max-w-lg">
-        <p className="font-serif text-xl md:text-2xl text-foreground leading-snug">
-          {result.headline}
+/* ─── Stage 0: Emotion ──────────────────────────────────────────────────── */
+function EmotionStep({ result }: { result: AnalyzeReflectionResponseType }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", paddingTop: 90 }}>
+      <h1
+        style={{
+          fontFamily: "var(--app-font-heading)",
+          fontSize: "1.5rem",
+          color: BLUE,
+          margin: 0,
+          marginBottom: 8,
+          textTransform: "capitalize",
+        }}
+        data-testid="text-primary-emotion"
+      >
+        {result.primary_emotion}
+      </h1>
+      {result.secondary_emotion && (
+        <p style={{ fontSize: "0.9375rem", color: "#a8b3c1", margin: 0, marginBottom: 28 }}>
+          with {result.secondary_emotion} underneath
         </p>
-      </div>
-
-      {/* Metaphor */}
-      <div className="max-w-md">
-        <p className="text-sm text-muted-foreground italic">
-          "{result.emotion_metaphor}"
-        </p>
-      </div>
+      )}
+      <p style={{ fontSize: "0.875rem", color: "#1d2e48", lineHeight: 1.6, maxWidth: 360, margin: 0 }}>
+        {result.headline}
+      </p>
     </div>
   );
 }
 
-/* ─── STEP 2: Why ──────────────────────────────────────────────────────────── */
-function StepWhy({ result }: { result: AnalyzeReflectionResponseType }) {
-  const layers: {
-    key: string;
-    label: string;
-    sublabel: string;
-    framework: string;
-    body: string;
-    accent?: boolean;
-  }[] = [
+/* ─── Stage 1: Why is this happening ────────────────────────────────────── */
+interface TheorySource {
+  name: string;
+  summary: string;
+  link: string;
+}
+const THEORY_LIBRARY: Record<string, TheorySource> = {
+  CBT: {
+    name: "CBT — Cognitive Behavioral Therapy",
+    summary:
+      "CBT looks at how thoughts, feelings, and behavior reinforce each other. Changing the thought pattern changes the loop.",
+    link: "https://www.apa.org/ptsd-guideline/patients-and-families/cognitive-behavioral",
+  },
+  IFS: {
+    name: "IFS — Internal Family Systems",
+    summary:
+      "IFS sees the mind as a family of 'parts.' Exiles carry old wounds. Managers protect. The Self — your calm core — can witness all of them with compassion.",
+    link: "https://ifs-institute.com",
+  },
+  DBT: {
+    name: "DBT — Dialectical Behavior Therapy",
+    summary:
+      "DBT pairs acceptance with change. Practical skills for distress tolerance and emotion regulation when the wave is too big.",
+    link: "https://www.psychologytoday.com/us/therapy-types/dialectical-behavior-therapy",
+  },
+  NVC: {
+    name: "NVC — Nonviolent Communication",
+    summary:
+      "NVC traces hard feelings back to unmet universal needs (safety, belonging, respect). Naming the need underneath softens it.",
+    link: "https://www.cnvc.org",
+  },
+  Attachment: {
+    name: "Attachment Theory",
+    summary:
+      "Adult relational reactions often echo how connection was learned in childhood. Insecure patterns can be healed in safe relationships.",
+    link: "https://www.psychologytoday.com/us/basics/attachment",
+  },
+  Polyvagal: {
+    name: "Polyvagal Theory",
+    summary:
+      "Your nervous system runs on three settings: safe & connected, fight/flight, and shutdown. Settling the body comes before insight.",
+    link: "https://www.stephenporges.com",
+  },
+};
+
+function WhyStep({ result }: { result: AnalyzeReflectionResponseType }) {
+  const [openKey, setOpenKey] = useState<string>("surface");
+
+  const boxes = [
     {
       key: "surface",
-      label: "Surface",
-      sublabel: "Thought pattern",
-      framework: "CBT",
+      title: "Surface",
       body: result.why.surface,
+      theories: ["CBT"],
     },
     {
       key: "deeper",
-      label: "Deeper",
-      sublabel: "Parts at play",
-      framework: "IFS + Attachment",
+      title: "Deeper",
       body: result.why.deeper,
+      theories: ["IFS", "Attachment"],
     },
     {
       key: "root",
-      label: "Root",
-      sublabel: "The unmet need",
-      framework: "NVC",
+      title: "Root",
       body: result.why.root,
-      accent: true,
+      theories: ["NVC"],
     },
   ];
 
   return (
-    <div className="py-4">
-      <div className="mb-8">
-        <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-          Step 2 of 5
-        </div>
-        <h2 className="font-serif text-3xl text-foreground">Why this is happening</h2>
-      </div>
+    <div style={{ paddingTop: 40 }}>
+      <h2
+        style={{
+          fontFamily: "var(--app-font-heading)",
+          fontSize: "1.25rem",
+          color: "#1d2e48",
+          margin: 0,
+          marginBottom: 24,
+          textAlign: "center",
+        }}
+      >
+        Why is this happening?
+      </h2>
 
-      <div className="grid gap-4">
-        {layers.map((layer, i) => (
-          <motion.div
-            key={layer.key}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.15, duration: 0.4 }}
-            className={`rounded-xl border p-5 ${
-              layer.accent ? "border-primary/30 bg-primary/5" : "border-border bg-card"
-            }`}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <div className="font-medium text-foreground text-sm">{layer.label}</div>
-                <div className="text-xs text-muted-foreground">{layer.sublabel}</div>
-              </div>
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground bg-muted px-2 py-1 rounded">
-                {layer.framework}
-              </div>
-            </div>
-            <p className="text-sm leading-relaxed text-foreground">{layer.body}</p>
-          </motion.div>
-        ))}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {boxes.map((b) => {
+          const isOpen = openKey === b.key;
+          const bodyId = `why-body-${b.key}`;
+          return (
+            <button
+              key={b.key}
+              type="button"
+              className={`out-card${isOpen ? " selected" : " collapsed"}`}
+              onClick={() => setOpenKey(b.key)}
+              aria-expanded={isOpen}
+              aria-controls={bodyId}
+              data-testid={`why-card-${b.key}`}
+            >
+              <p className="out-card-title">{b.title}</p>
+              {isOpen && (
+                <div id={bodyId}>
+                  <p className="out-card-body">{b.body}</p>
+                  <TheorySourceLine theories={b.theories} />
+                </div>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-/* ─── STEP 3: Reframe ──────────────────────────────────────────────────────── */
-function StepReframe({ result }: { result: AnalyzeReflectionResponseType }) {
+function TheorySourceLine({ theories }: { theories: string[] }) {
+  const primary = THEORY_LIBRARY[theories[0]];
+  if (!primary) return null;
+  const tipId = `theory-tip-${theories.join("-")}`;
   return (
-    <div className="py-4">
-      <div className="mb-8">
-        <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-          Step 3 of 5
+    <span className="out-card-source">
+      {/* Real button so keyboard users can :focus-within and open the tooltip. */}
+      <button
+        type="button"
+        className="theory-tip-trigger"
+        aria-describedby={tipId}
+        onClick={(e) => e.stopPropagation()}
+      >
+        Drawn from{" "}
+        <a href={primary.link} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
+          {theories.join(" + ")} Theory.
+        </a>
+      </button>
+      <span className="theory-tip" role="tooltip" id={tipId}>
+        <span className="theory-tip-title">{primary.name}</span>
+        {primary.summary}
+        <a href={primary.link} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
+          Learn more →
+        </a>
+      </span>
+    </span>
+  );
+}
+
+/* ─── Stage 2: A different angle ────────────────────────────────────────── */
+function ShiftStep({ result }: { result: AnalyzeReflectionResponseType }) {
+  return (
+    <div style={{ paddingTop: 40 }}>
+      <h2
+        style={{
+          fontFamily: "var(--app-font-heading)",
+          fontSize: "1.25rem",
+          color: "#1d2e48",
+          margin: 0,
+          marginBottom: 28,
+          textAlign: "center",
+        }}
+      >
+        A different angle.
+      </h2>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div className="out-card" style={{ cursor: "default" }}>
+          <p className="out-card-title" style={{ color: "#1d2e48" }}>The current pattern</p>
+          <p className="out-card-body" style={{ color: "#a8b3c1", fontStyle: "italic" }}>
+            "{result.headline}"
+          </p>
         </div>
-        <h2 className="font-serif text-3xl text-foreground">A different angle</h2>
-        <p className="text-sm text-muted-foreground mt-1 italic">
-          From the calm part of you, looking at the activated part with compassion.
+        <div className="out-card selected" style={{ cursor: "default" }}>
+          <p className="out-card-title">The actual truth</p>
+          <p className="out-card-body">{result.reframe}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Intermission ──────────────────────────────────────────────────────── */
+function Intermission() {
+  return (
+    <AppFrame currentBead={7}>
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 48,
+        }}
+      >
+        <p style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.25rem", color: "#1d2e48", margin: 0 }}>
+          That was a lot. Take a breath..
         </p>
+        <div className="diamond-burst" aria-hidden>
+          <div className="db-blue" />
+          <div className="db-white" />
+        </div>
+      </div>
+    </AppFrame>
+  );
+}
+
+/* ─── Stage 3: What you can do ──────────────────────────────────────────── */
+function WhatYouCanDoStep({ result }: { result: AnalyzeReflectionResponseType }) {
+  const first = result.next_steps[0];
+  if (!first) {
+    return <p style={{ padding: 40 }}>No next steps yet.</p>;
+  }
+  return (
+    <div style={{ paddingTop: 40 }}>
+      <h2
+        style={{
+          fontFamily: "var(--app-font-heading)",
+          fontSize: "1.25rem",
+          color: "#1d2e48",
+          margin: 0,
+          marginBottom: 28,
+          textAlign: "center",
+        }}
+      >
+        What you can do
+      </h2>
+      <div className="out-card selected" style={{ cursor: "default" }}>
+        <p className="out-card-title">{first.action}</p>
+        <p className="out-card-body">{first.description}</p>
+        {first.framework && <TheorySourceLine theories={[normaliseTheory(first.framework)]} />}
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="rounded-xl border border-border bg-card p-7"
-      >
-        <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-4">
-          IFS Self-energy
+      {result.next_steps.length > 1 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16 }}>
+          {result.next_steps.slice(1).map((s, i) => (
+            <div key={i} className="out-card collapsed" style={{ cursor: "default" }}>
+              <p className="out-card-title">{s.action}</p>
+            </div>
+          ))}
         </div>
-        <p className="font-serif text-lg md:text-xl text-foreground leading-relaxed">
-          {result.reframe}
-        </p>
-      </motion.div>
-
-      {result.attachment_inferred_note && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.4 }}
-          className="mt-5 text-xs text-muted-foreground italic text-center"
-        >
-          {result.attachment_inferred_note}
-        </motion.p>
       )}
     </div>
   );
 }
 
-/* ─── STEP 4: Next steps ───────────────────────────────────────────────────── */
-function StepNextSteps({ result }: { result: AnalyzeReflectionResponseType }) {
-  const timeframeOrder: Record<string, number> = {
-    "right now": 0,
-    today: 1,
-    "this week": 2,
-  };
-
-  const sorted = [...result.next_steps].sort(
-    (a, b) => (timeframeOrder[a.timeframe] ?? 3) - (timeframeOrder[b.timeframe] ?? 3),
-  );
-
-  return (
-    <div className="py-4">
-      <div className="mb-8">
-        <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-          Step 4 of 5
-        </div>
-        <h2 className="font-serif text-3xl text-foreground">What you can do</h2>
-        <p className="text-sm text-muted-foreground mt-1 italic">
-          Ordered by urgency — nervous system first, insight second.
-        </p>
-      </div>
-
-      <div className="grid gap-3">
-        {sorted.map((step, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.12, duration: 0.4 }}
-            className="rounded-xl border border-border bg-card p-5"
-          >
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <h3 className="font-medium text-foreground leading-tight">{step.action}</h3>
-              <span
-                className={`shrink-0 text-[10px] uppercase tracking-wider px-2 py-1 rounded ${
-                  step.timeframe === "right now"
-                    ? "bg-primary/10 text-primary"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {step.timeframe}
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
-            <div className="mt-3 text-[10px] uppercase tracking-widest text-muted-foreground/70">
-              {step.framework}
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
+function normaliseTheory(s: string): string {
+  const upper = s.toUpperCase();
+  for (const k of Object.keys(THEORY_LIBRARY)) {
+    if (upper.includes(k.toUpperCase())) return k;
+  }
+  return "DBT";
 }
 
-/* ─── STEP 5: Closing ──────────────────────────────────────────────────────── */
-function StepClosing({
+/* ─── Stage 4: Take it with you ─────────────────────────────────────────── */
+function TakeItWithYouStep({
   result,
   onBuildPlan,
   onSaveShare,
-  onReset,
 }: {
   result: AnalyzeReflectionResponseType;
   onBuildPlan: () => void;
   onSaveShare: () => void;
-  onReset: () => void;
 }) {
   return (
-    <div className="py-4">
-      <div className="mb-8">
-        <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-          Step 5 of 5
-        </div>
-        <h2 className="font-serif text-3xl text-foreground">Take it with you</h2>
+    <div style={{ paddingTop: 40 }}>
+      <h2
+        style={{
+          fontFamily: "var(--app-font-heading)",
+          fontSize: "1.25rem",
+          color: "#1d2e48",
+          margin: 0,
+          marginBottom: 36,
+          textAlign: "center",
+        }}
+      >
+        Take it with you.
+      </h2>
+
+      <p
+        style={{
+          fontSize: "0.875rem",
+          color: "#1d2e48",
+          textAlign: "center",
+          lineHeight: 1.6,
+          maxWidth: 460,
+          margin: "0 auto 28px",
+        }}
+      >
+        {result.affirmation}
+      </p>
+
+      <button
+        type="button"
+        onClick={onBuildPlan}
+        className="out-card selected"
+        style={{ background: BLUE, borderColor: BLUE, marginBottom: 14 }}
+        data-testid="button-build-plan"
+      >
+        <p className="out-card-title" style={{ color: "white", display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ width: 10, height: 10, background: "white", transform: "rotate(45deg)", display: "inline-block" }} />
+          Build an action plan
+        </p>
+        <p className="out-card-body" style={{ color: "rgba(255,255,255,0.9)" }}>
+          Turn these next steps into a daily check-in you can actually follow.
+        </p>
+      </button>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <button type="button" onClick={onSaveShare} className="out-card" data-testid="button-save-charm">
+          <p className="out-card-title" style={{ color: BLUE, display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ width: 10, height: 10, background: BLUE, transform: "rotate(45deg)", display: "inline-block" }} />
+            Save charm
+          </p>
+        </button>
+        <button type="button" onClick={onSaveShare} className="out-card" data-testid="button-export">
+          <p className="out-card-title" style={{ color: BLUE, display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ width: 10, height: 10, background: BLUE, transform: "rotate(45deg)", display: "inline-block" }} />
+            Export
+          </p>
+        </button>
       </div>
 
-      {/* Affirmation */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-center mb-10 px-4"
-      >
-        <Sparkles className="w-5 h-5 text-muted-foreground mx-auto mb-4" />
-        <p className="font-serif text-xl md:text-2xl text-foreground leading-snug italic">
-          {result.affirmation}
-        </p>
-      </motion.div>
-
-      {/* CTA cards */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.4 }}
-        className="grid gap-3 mb-6"
-      >
-        <button
-          onClick={onBuildPlan}
-          className="w-full text-left rounded-xl border border-primary/30 bg-primary/5 hover-elevate active-elevate-2 p-5 transition-all"
-        >
-          <div className="flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-primary shrink-0" />
-            <div>
-              <div className="font-medium text-foreground">Build an action plan</div>
-              <div className="text-xs text-muted-foreground mt-0.5">
-                Turn these next steps into a daily check-in you can actually follow.
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto shrink-0" />
-          </div>
-        </button>
-
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={onSaveShare}
-            className="text-left rounded-xl border border-border bg-card hover-elevate active-elevate-2 p-4 transition-all"
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <Bookmark className="w-4 h-4 text-muted-foreground" />
-              <div className="font-medium text-sm text-foreground">Save</div>
-            </div>
-            <div className="text-xs text-muted-foreground">Keep this insight for later.</div>
-          </button>
-          <button
-            onClick={onSaveShare}
-            className="text-left rounded-xl border border-border bg-card hover-elevate active-elevate-2 p-4 transition-all"
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <Share2 className="w-4 h-4 text-muted-foreground" />
-              <div className="font-medium text-sm text-foreground">Share</div>
-            </div>
-            <div className="text-xs text-muted-foreground">Send it to someone you trust.</div>
-          </button>
-        </div>
-      </motion.div>
-
-      {/* Therapy nudge */}
       {result.therapy_nudge && result.therapy_nudge_reason && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="text-xs text-muted-foreground italic text-center px-4"
-        >
+        <p style={{ marginTop: 20, fontSize: "0.75rem", color: "#a8b3c1", textAlign: "center", fontStyle: "italic" }}>
           {result.therapy_nudge_reason}
-        </motion.p>
+        </p>
       )}
     </div>
   );

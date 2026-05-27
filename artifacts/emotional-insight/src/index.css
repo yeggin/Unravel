@@ -331,3 +331,197 @@
   border-radius: 6px;
 }
 .nav-btn-continue.primary-fill:hover { background: #0077e0; border-color: #0077e0; }
+
+/* ── Output: Chain art ───────────────────────────────────────────────────── */
+.chain-art {
+  position: relative;
+  width: 300px;
+  height: 540px;
+  flex-shrink: 0;
+  user-select: none;
+}
+.chain-art .chain-string {
+  position: absolute;
+  top: 0;
+  left: 30px;
+  width: 200px;
+  height: 340px;
+  pointer-events: none;
+}
+.chain-art .chain-bead {
+  position: absolute;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.4s ease, filter 0.3s ease, transform 0.2s ease;
+  opacity: 0;
+}
+.chain-art .chain-bead.visible { opacity: 1; }
+.chain-art .chain-bead.locked { cursor: default; opacity: 0.35; pointer-events: none; }
+.chain-art .chain-bead img { display: block; width: 100%; height: 100%; pointer-events: none; }
+/* Past/clickable beads have a soft blue glow */
+.chain-art .chain-bead.past,
+.chain-art .chain-bead.current,
+.chain-art .chain-bead.next {
+  filter: drop-shadow(0 0 8px rgba(0,136,255,0.55)) drop-shadow(0 0 14px rgba(0,136,255,0.32));
+}
+.chain-art .chain-bead.current::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border-radius: 9999px;
+  border: 2px solid rgba(0,136,255,0.55);
+  animation: bead-pulse 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+.chain-art .chain-bead.past:hover,
+.chain-art .chain-bead.next:hover { transform: scale(1.08); }
+@keyframes bead-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50%      { transform: scale(1.25); opacity: 0; }
+}
+
+/* ── Output cards (Why, Shift, What you can do) ─────────────────────────── */
+.out-card {
+  border: 1px solid #d1dce8;
+  background: white;
+  border-radius: 6px;
+  padding: 18px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, padding 0.25s;
+  text-align: left;
+  width: 100%;
+  font-family: var(--app-font-body);
+  position: relative;
+}
+.out-card:hover { border-color: #80bbff; }
+.out-card.selected {
+  border-color: #0088ff;
+  box-shadow: 0 0 0 1px #0088ff;
+}
+.out-card.collapsed { padding: 10px 22px; }
+.out-card .out-card-title {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #1d2e48;
+  margin: 0 0 6px;
+}
+.out-card.selected .out-card-title { color: #0088ff; }
+.out-card .out-card-body {
+  font-size: 0.8125rem;
+  color: #1d2e48;
+  line-height: 1.55;
+  margin: 0;
+}
+.out-card .out-card-source {
+  margin-top: 12px;
+  font-size: 0.75rem;
+  color: #a8b3c1;
+  cursor: help;
+  display: inline-block;
+}
+.out-card .out-card-source a {
+  color: #a8b3c1;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.out-card .out-card-source:hover a { color: #0088ff; }
+
+/* Theory tooltip — blue dialogue box on hover */
+.theory-tip {
+  position: absolute;
+  left: 16px;
+  bottom: calc(100% + 6px);
+  background: #0088ff;
+  color: white;
+  padding: 14px 16px;
+  border-radius: 6px;
+  width: 240px;
+  font-size: 0.75rem;
+  line-height: 1.55;
+  box-shadow: 0 8px 20px rgba(0,136,255,0.25);
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+  transition: opacity 0.18s, transform 0.18s;
+  z-index: 10;
+}
+.theory-tip .theory-tip-title {
+  font-family: var(--app-font-heading);
+  font-size: 0.8125rem;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.theory-tip .theory-tip-title::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: white;
+  transform: rotate(45deg);
+  display: inline-block;
+}
+.theory-tip a {
+  color: white;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  display: inline-block;
+  margin-top: 8px;
+}
+.out-card-source:hover .theory-tip,
+.out-card-source:focus-within .theory-tip,
+.theory-tip:hover {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+/* Trigger button (focusable so keyboard users can open the tooltip) */
+.theory-tip-trigger {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: help;
+  text-align: left;
+}
+.theory-tip-trigger:focus-visible {
+  outline: 2px solid #0088ff;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ── Intermission diamond burst (placeholder animation) ──────────────────── */
+.diamond-burst {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  transform: rotate(45deg);
+}
+.diamond-burst .db-blue {
+  position: absolute;
+  inset: 0;
+  background: #0088ff;
+  animation: db-expand 2.4s ease-in-out infinite;
+}
+.diamond-burst .db-white {
+  position: absolute;
+  inset: 35%;
+  background: white;
+  animation: db-white-grow 2.4s ease-in-out infinite;
+}
+@keyframes db-expand {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  60%      { transform: scale(1); opacity: 1; }
+  80%      { transform: scale(1.8); opacity: 0; }
+  81%      { transform: scale(0.8); opacity: 1; }
+}
+@keyframes db-white-grow {
+  0%, 100% { inset: 35%; }
+  60%      { inset: 35%; }
+  80%      { inset: -10%; }
+  81%      { inset: 35%; }
+}

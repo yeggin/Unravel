@@ -510,16 +510,16 @@ export function IntakePage() {
             {/* Diamond-icon style, matching body reactions page (user request #5) */}
             <CenteredContent>
               <div style={{ display: "grid", gap: "12px 40px", maxWidth: 480 }}>
-                {FAMILY_PATTERN_OPTIONS.map((p) => {
-                  const selected = state.family_patterns.includes(p);
+                {FAMILY_PATTERN_OPTIONS.map((opt) => {
+                  const selected = state.family_patterns.includes(opt.value);
                   return (
                     <button
-                      key={p}
+                      key={opt.value}
                       type="button"
                       onClick={() => {
                         const next = selected
-                          ? state.family_patterns.filter((x) => x !== p)
-                          : [...state.family_patterns, p];
+                          ? state.family_patterns.filter((x) => x !== opt.value)
+                          : [...state.family_patterns, opt.value];
                         update("family_patterns", next);
                       }}
                       style={{
@@ -532,7 +532,7 @@ export function IntakePage() {
                         padding: 0,
                         textAlign: "left",
                       }}
-                      data-testid={`chip-family-${p}`}
+                      data-testid={`chip-family-${opt.value}`}
                     >
                       <span
                         className="diamond-icon"
@@ -543,7 +543,7 @@ export function IntakePage() {
                         }}
                       />
                       <span style={{ fontSize: "0.875rem", color: selected ? BLUE : "#1d2e48", transition: "color 0.15s" }}>
-                        {p}
+                        {opt.label}
                       </span>
                     </button>
                   );
