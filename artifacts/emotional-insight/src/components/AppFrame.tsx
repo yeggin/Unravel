@@ -42,6 +42,8 @@ interface AppFrameProps {
   children: ReactNode;
   /** 0 = landing (none lit), 1–7 = current structured step */
   currentBead?: number;
+  /** When true, hides the top bead/knot progress bar entirely (used by the output flow). */
+  hideProgress?: boolean;
 }
 
 function HLine({ style }: { style: CSSProperties }) {
@@ -239,7 +241,7 @@ function AnimatedBorderDots({
   );
 }
 
-export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
+export function AppFrame({ children, currentBead = 0, hideProgress = false }: AppFrameProps) {
   const frameRef = useRef<HTMLDivElement | null>(null);
   return (
     /*
@@ -309,8 +311,9 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
         {/*
          * BEAD BAR — monogram pinned left, 7 beads centered in remaining space.
          * User request: progress indicator centered.
+         * Hidden during the output flow (`hideProgress` true).
          */}
-        <div
+        {!hideProgress && <div
           style={{
             width: "100%",
             maxWidth: 1000,
@@ -366,7 +369,7 @@ export function AppFrame({ children, currentBead = 0 }: AppFrameProps) {
               );
             })}
           </div>
-        </div>
+        </div>}
 
         {/*
          * INNER FRAME

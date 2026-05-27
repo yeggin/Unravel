@@ -14,30 +14,27 @@ interface InsightViewProps {
 const BLUE = "#0088ff";
 
 /**
- * Output flow — 5 chain stages with an intermission animation between
- * Shift (stage 2) and "What you can do" (stage 3).
- *
- *   0  Emotion              — chain reveal animation
+ * Output flow — 6 chain stages, in order:
+ *   0  Emotion            — chain reveal animation
  *   1  Why is this happening — collapsible boxes (CBT/IFS/NVC sources)
- *   2  A different angle    — pattern vs. truth
- *      [intermission]       — diamond burst transition
- *   3  What you can do      — DBT-flavored action card
- *   4  Take it with you     — affirmation + CTAs
+ *   2  Take a breath      — intermission diamond-burst animation
+ *   3  A different angle  — current pattern vs. actual truth
+ *   4  What you can do    — three timeframe pills (right now / today / this week)
+ *   5  Take it with you   — affirmation + CTAs
+ *
+ * The output frame hides the input progress bar (`hideProgress`) — the chain
+ * on the left now is the progress indicator.
  */
 
-const TOTAL_STAGES = 5;
+const TOTAL_STAGES = 6;
 
 export function InsightView({ result, onReset, onBuildPlan, onSaveShare }: InsightViewProps) {
   const [stage, setStage] = useState(0);
-  const [showIntermission, setShowIntermission] = useState(false);
 
-  // The Emotion stage uses a one-time cascade reveal animation.
-  // After the user navigates away once, subsequent visits don't replay it.
+  // The Emotion stage uses a one-time cascade reveal.
   const [emotionAnimated, setEmotionAnimated] = useState(false);
   useEffect(() => {
     if (emotionAnimated) return;
-    // Mark "animated" as soon as the user leaves stage 0 OR after the cascade
-    // has had time to play — whichever comes first. Prevents replay on return.
     if (stage !== 0) {
       setEmotionAnimated(true);
       return;
@@ -48,42 +45,23 @@ export function InsightView({ result, onReset, onBuildPlan, onSaveShare }: Insig
 
   function goToStage(next: number) {
     if (next < 0 || next >= TOTAL_STAGES) return;
-    // Transition: shift (2) → what you can do (3) plays the intermission first.
-    if (stage === 2 && next === 3) {
-      setShowIntermission(true);
-      window.setTimeout(() => {
-        setShowIntermission(false);
-        setStage(3);
-      }, 2600);
-      return;
-    }
     setStage(next);
   }
-
   function advance() { goToStage(stage + 1); }
-
-  if (showIntermission) {
-    return <Intermission />;
-  }
 
   const animateInitial = stage === 0 && !emotionAnimated;
 
   return (
-    // Output flow runs after the 6-step input flow is complete — pass a value
-    // past TOTAL_BEADS so AppFrame's input progressbar reads "all done"
-    // instead of falsely reporting "step 0".
-    <AppFrame currentBead={7}>
+    <AppFrame currentBead={7} hideProgress>
       <div style={{ display: "flex", flex: 1, gap: 32, minHeight: 540 }}>
-        {/* Chain on the left */}
         <div style={{ flexShrink: 0, paddingTop: 12 }}>
           <ChainArt
             currentStage={stage}
             animateInitial={animateInitial}
-            onBeadClick={(s) => goToStage(s)}
+            onBeadClick={goToStage}
           />
         </div>
 
-        {/* Content on the right */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <AnimatePresence mode="wait">
             <motion.div
@@ -96,9 +74,10 @@ export function InsightView({ result, onReset, onBuildPlan, onSaveShare }: Insig
             >
               {stage === 0 && <EmotionStep result={result} />}
               {stage === 1 && <WhyStep result={result} />}
-              {stage === 2 && <ShiftStep result={result} />}
-              {stage === 3 && <WhatYouCanDoStep result={result} />}
-              {stage === 4 && (
+              {stage === 2 && <BreathStep />}
+              {stage === 3 && <ShiftStep result={result} />}
+              {stage === 4 && <WhatYouCanDoStep result={result} />}
+              {stage === 5 && (
                 <TakeItWithYouStep
                   result={result}
                   onBuildPlan={onBuildPlan}
@@ -108,7 +87,6 @@ export function InsightView({ result, onReset, onBuildPlan, onSaveShare }: Insig
             </motion.div>
           </AnimatePresence>
 
-          {/* Continue / Start over — bottom right of the right column */}
           <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end" }}>
             {stage < TOTAL_STAGES - 1 ? (
               <button
@@ -173,25 +151,25 @@ interface TheorySource {
 }
 const THEORY_LIBRARY: Record<string, TheorySource> = {
   CBT: {
-    name: "CBT — Cognitive Behavioral Therapy",
+    name: "CBT Theory",
     summary:
       "CBT looks at how thoughts, feelings, and behavior reinforce each other. Changing the thought pattern changes the loop.",
     link: "https://www.apa.org/ptsd-guideline/patients-and-families/cognitive-behavioral",
   },
   IFS: {
-    name: "IFS — Internal Family Systems",
+    name: "IFS Theory",
     summary:
       "IFS sees the mind as a family of 'parts.' Exiles carry old wounds. Managers protect. The Self — your calm core — can witness all of them with compassion.",
     link: "https://ifs-institute.com",
   },
   DBT: {
-    name: "DBT — Dialectical Behavior Therapy",
+    name: "DBT Theory",
     summary:
       "DBT pairs acceptance with change. Practical skills for distress tolerance and emotion regulation when the wave is too big.",
     link: "https://www.psychologytoday.com/us/therapy-types/dialectical-behavior-therapy",
   },
   NVC: {
-    name: "NVC — Nonviolent Communication",
+    name: "NVC Theory",
     summary:
       "NVC traces hard feelings back to unmet universal needs (safety, belonging, respect). Naming the need underneath softens it.",
     link: "https://www.cnvc.org",
@@ -214,41 +192,14 @@ function WhyStep({ result }: { result: AnalyzeReflectionResponseType }) {
   const [openKey, setOpenKey] = useState<string>("surface");
 
   const boxes = [
-    {
-      key: "surface",
-      title: "Surface",
-      body: result.why.surface,
-      theories: ["CBT"],
-    },
-    {
-      key: "deeper",
-      title: "Deeper",
-      body: result.why.deeper,
-      theories: ["IFS", "Attachment"],
-    },
-    {
-      key: "root",
-      title: "Root",
-      body: result.why.root,
-      theories: ["NVC"],
-    },
+    { key: "surface", title: "Surface", body: result.why.surface, theories: ["CBT"] },
+    { key: "deeper",  title: "Deeper",  body: result.why.deeper,  theories: ["IFS", "Attachment"] },
+    { key: "root",    title: "Root",    body: result.why.root,    theories: ["NVC"] },
   ];
 
   return (
     <div style={{ paddingTop: 40 }}>
-      <h2
-        style={{
-          fontFamily: "var(--app-font-heading)",
-          fontSize: "1.25rem",
-          color: "#1d2e48",
-          margin: 0,
-          marginBottom: 24,
-          textAlign: "center",
-        }}
-      >
-        Why is this happening?
-      </h2>
-
+      <h2 style={sectionHeading}>Why is this happening?</h2>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {boxes.map((b) => {
           const isOpen = openKey === b.key;
@@ -284,7 +235,6 @@ function TheorySourceLine({ theories }: { theories: string[] }) {
   const tipId = `theory-tip-${theories.join("-")}`;
   return (
     <span className="out-card-source">
-      {/* Real button so keyboard users can :focus-within and open the tooltip. */}
       <button
         type="button"
         className="theory-tip-trigger"
@@ -298,7 +248,7 @@ function TheorySourceLine({ theories }: { theories: string[] }) {
       </button>
       <span className="theory-tip" role="tooltip" id={tipId}>
         <span className="theory-tip-title">{primary.name}</span>
-        {primary.summary}
+        <span className="theory-tip-body">{primary.summary}</span>
         <a href={primary.link} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
           Learn more →
         </a>
@@ -307,23 +257,36 @@ function TheorySourceLine({ theories }: { theories: string[] }) {
   );
 }
 
-/* ─── Stage 2: A different angle ────────────────────────────────────────── */
+/* ─── Stage 2: Take a breath ────────────────────────────────────────────── */
+function BreathStep() {
+  return (
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 48,
+        paddingTop: 60,
+      }}
+    >
+      <p style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.25rem", color: "#1d2e48", margin: 0, textAlign: "center" }}>
+        That was a lot. Take a breath.
+      </p>
+      <div className="diamond-burst" aria-hidden>
+        <div className="db-blue" />
+        <div className="db-white" />
+      </div>
+    </div>
+  );
+}
+
+/* ─── Stage 3: A different angle ────────────────────────────────────────── */
 function ShiftStep({ result }: { result: AnalyzeReflectionResponseType }) {
   return (
     <div style={{ paddingTop: 40 }}>
-      <h2
-        style={{
-          fontFamily: "var(--app-font-heading)",
-          fontSize: "1.25rem",
-          color: "#1d2e48",
-          margin: 0,
-          marginBottom: 28,
-          textAlign: "center",
-        }}
-      >
-        A different angle.
-      </h2>
-
+      <h2 style={sectionHeading}>A different angle.</h2>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <div className="out-card" style={{ cursor: "default" }}>
           <p className="out-card-title" style={{ color: "#1d2e48" }}>The current pattern</p>
@@ -340,67 +303,76 @@ function ShiftStep({ result }: { result: AnalyzeReflectionResponseType }) {
   );
 }
 
-/* ─── Intermission ──────────────────────────────────────────────────────── */
-function Intermission() {
-  return (
-    <AppFrame currentBead={7}>
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 48,
-        }}
-      >
-        <p style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.25rem", color: "#1d2e48", margin: 0 }}>
-          That was a lot. Take a breath..
-        </p>
-        <div className="diamond-burst" aria-hidden>
-          <div className="db-blue" />
-          <div className="db-white" />
-        </div>
-      </div>
-    </AppFrame>
-  );
+/* ─── Stage 4: What you can do ──────────────────────────────────────────── */
+/**
+ * Three timeframe pills: Right now / Today / This week.
+ * The backend returns `next_steps[]` each with a `timeframe` field; we bucket
+ * them and render the selected bucket below the pills.
+ */
+const TIMEFRAMES = [
+  { key: "now",   label: "Right now",  match: /(right now|moment|second|minute|breath|now)/i },
+  { key: "today", label: "Today",      match: /(today|day|hour|tonight|afternoon|evening|morning)/i },
+  { key: "week",  label: "This week",  match: /(week|days|coming|over the next|month)/i },
+] as const;
+
+type TFKey = typeof TIMEFRAMES[number]["key"];
+
+function bucketSteps(steps: AnalyzeReflectionResponseType["next_steps"]) {
+  const buckets: Record<TFKey, AnalyzeReflectionResponseType["next_steps"]> = { now: [], today: [], week: [] };
+  for (const s of steps) {
+    const found = TIMEFRAMES.find((t) => t.match.test(s.timeframe));
+    const key: TFKey = found ? found.key : "today";
+    buckets[key].push(s);
+  }
+  return buckets;
 }
 
-/* ─── Stage 3: What you can do ──────────────────────────────────────────── */
 function WhatYouCanDoStep({ result }: { result: AnalyzeReflectionResponseType }) {
-  const first = result.next_steps[0];
-  if (!first) {
-    return <p style={{ padding: 40 }}>No next steps yet.</p>;
-  }
+  const buckets = bucketSteps(result.next_steps);
+  // Default-select the first bucket that has something in it.
+  const firstFilled = TIMEFRAMES.find((t) => buckets[t.key].length > 0)?.key ?? "now";
+  const [selected, setSelected] = useState<TFKey>(firstFilled);
+
   return (
     <div style={{ paddingTop: 40 }}>
-      <h2
-        style={{
-          fontFamily: "var(--app-font-heading)",
-          fontSize: "1.25rem",
-          color: "#1d2e48",
-          margin: 0,
-          marginBottom: 28,
-          textAlign: "center",
-        }}
-      >
-        What you can do
-      </h2>
-      <div className="out-card selected" style={{ cursor: "default" }}>
-        <p className="out-card-title">{first.action}</p>
-        <p className="out-card-body">{first.description}</p>
-        {first.framework && <TheorySourceLine theories={[normaliseTheory(first.framework)]} />}
+      <h2 style={sectionHeading}>What you can do</h2>
+
+      {/* Pills */}
+      <div style={{ display: "flex", gap: 10, marginBottom: 22, flexWrap: "wrap" }}>
+        {TIMEFRAMES.map((t) => {
+          const isSelected = selected === t.key;
+          const hasContent = buckets[t.key].length > 0;
+          return (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => setSelected(t.key)}
+              className={`timeframe-pill${isSelected ? " selected" : ""}`}
+              disabled={!hasContent}
+              data-testid={`timeframe-${t.key}`}
+            >
+              {t.label}
+            </button>
+          );
+        })}
       </div>
 
-      {result.next_steps.length > 1 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16 }}>
-          {result.next_steps.slice(1).map((s, i) => (
-            <div key={i} className="out-card collapsed" style={{ cursor: "default" }}>
+      {/* Selected bucket directions */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {buckets[selected].length === 0 ? (
+          <p style={{ fontSize: "0.875rem", color: "#a8b3c1", margin: 0 }}>
+            Nothing specific here — try another timeframe.
+          </p>
+        ) : (
+          buckets[selected].map((s, i) => (
+            <div key={i} className="out-card selected" style={{ cursor: "default" }}>
               <p className="out-card-title">{s.action}</p>
+              <p className="out-card-body">{s.description}</p>
+              {s.framework && <TheorySourceLine theories={[normaliseTheory(s.framework)]} />}
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 }
@@ -413,7 +385,7 @@ function normaliseTheory(s: string): string {
   return "DBT";
 }
 
-/* ─── Stage 4: Take it with you ─────────────────────────────────────────── */
+/* ─── Stage 5: Take it with you ─────────────────────────────────────────── */
 function TakeItWithYouStep({
   result,
   onBuildPlan,
@@ -425,18 +397,7 @@ function TakeItWithYouStep({
 }) {
   return (
     <div style={{ paddingTop: 40 }}>
-      <h2
-        style={{
-          fontFamily: "var(--app-font-heading)",
-          fontSize: "1.25rem",
-          color: "#1d2e48",
-          margin: 0,
-          marginBottom: 36,
-          textAlign: "center",
-        }}
-      >
-        Take it with you.
-      </h2>
+      <h2 style={sectionHeading}>Take it with you.</h2>
 
       <p
         style={{
@@ -490,3 +451,12 @@ function TakeItWithYouStep({
     </div>
   );
 }
+
+const sectionHeading: React.CSSProperties = {
+  fontFamily: "var(--app-font-heading)",
+  fontSize: "1.25rem",
+  color: "#1d2e48",
+  margin: 0,
+  marginBottom: 28,
+  textAlign: "center",
+};
