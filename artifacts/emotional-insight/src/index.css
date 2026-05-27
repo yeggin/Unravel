@@ -372,11 +372,10 @@
 .chain-art .chain-bead.next:not(.decorative) {
   filter: drop-shadow(0 0 5px rgba(0,136,255,0.45)) drop-shadow(0 0 10px rgba(0,136,255,0.25));
 }
-/* Current bead — lighter single drop-shadow keeps the SVG crisp (heavy filters
-   were causing the bead to look low-res). The pulsing ring carries the emphasis. */
-.chain-art .chain-bead.current {
-  filter: drop-shadow(0 0 5px rgba(0,136,255,0.55));
-}
+/* Current bead — NO filter on the SVG itself (filters were rasterizing the
+   SVG and making it look blurry/low-res). The pulsing outline ring around
+   the bead carries all the emphasis. */
+.chain-art .chain-bead.current { filter: none; }
 .chain-art .chain-bead.current::after {
   content: "";
   position: absolute;
@@ -478,11 +477,13 @@
 .theory-tip {
   position: absolute;
   left: -6px;
-  bottom: 100%;               /* directly above the trigger, touching */
-  margin-bottom: 2px;
+  /* Overlap the trigger by 4px so there is NO dead gap — the cursor can
+     travel from "Drawn from … Theory" straight up into the tip without
+     :hover ever being lost (which previously closed the tip mid-move). */
+  bottom: calc(100% - 4px);
   background: #0088ff;
   color: white;
-  padding: 14px 16px;
+  padding: 14px 16px 16px;
   border-radius: 6px;
   width: 250px;
   font-size: 0.75rem;
@@ -523,12 +524,13 @@
 }
 .theory-tip .theory-tip-body { margin: 0; }
 .theory-tip a {
-  color: white;
+  color: rgba(255, 255, 255, 0.75);   /* white @ 75% opacity */
   text-decoration: underline;
   text-underline-offset: 2px;
   display: inline-block;
   margin-top: 10px;
 }
+.theory-tip a:hover { color: rgba(255, 255, 255, 0.95); }
 .out-card-source:hover .theory-tip,
 .out-card-source:focus-within .theory-tip,
 .theory-tip:hover {
@@ -605,8 +607,10 @@
   color: #1d2e48;
   transition: color 0.2s;
 }
+/* Unselected chips: solid grey filled diamond (matches selected look but grey). */
 .timeframe-chip .diamond-icon {
   color: #d1dce8;
+  background: currentColor;
 }
 .timeframe-chip.selected,
 .timeframe-chip:hover:not(:disabled) { color: #0088ff; }

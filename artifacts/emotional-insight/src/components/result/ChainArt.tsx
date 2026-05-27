@@ -96,7 +96,11 @@ export function ChainArt({ currentStage, animateInitial, onBeadClick }: ChainArt
       />
 
       {BEADS.map((b, i) => {
-        const delay = animateInitial && currentStage === 0 ? 0.55 + i * 0.16 : 0;
+        // First-frame reveal: beads animate in from the BOTTOM of the chain
+        // upward (key first, clear bead last), so the user's eye lands at the
+        // top where the first stage's content begins.
+        const reverseIdx = BEADS.length - 1 - i;
+        const delay = animateInitial && currentStage === 0 ? 0.55 + reverseIdx * 0.16 : 0;
         return (
           <motion.button
             key={i}
