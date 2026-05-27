@@ -8,22 +8,23 @@ import beadKey from "@assets/Union_1779916770856.svg";
 import stringSvg from "@assets/Group_20_1779916770856.svg";
 
 /**
- * 6 logical stages, mapped to chain beads (top → bottom).
- * Per user feedback: selectable = first four round beads, then the square
- * (lock), then the key. Clover and pink ball are decorative companions.
+ * Chain layout — 8 beads total along the curving string, 6 are clickable
+ * (one per content stage). Positions are tuned to lie on the visible string
+ * path (string SVG sized 220×420, anchored at left:30 inside a 300×540 box).
  *
- *   0 Emotion          → clear bead 1
- *   1 Why              → clear bead 2
- *   2 Take a breath    → blue bead (clover companion)
- *   3 A different angle→ clear bead 3
- *   4 What you can do  → square (lock)
- *   5 Take it with you → key (pink-ball companion)
+ * Clickable beads, in order: clear1, clear2, clover, blue, square (lock), key.
+ * Decorative companions: clear3 and pink (animate in but no click / no pulse).
  *
- * Positions are tuned against the latest CHAIN reference image so the chain
- * curves down and to the right, with all beads strung along the visible path.
+ *   0 Emotion           → clear bead 1
+ *   1 Why               → clear bead 2
+ *   2 Take a breath     → clover
+ *   3 A different angle → blue bead
+ *   4 What you can do   → square (lock)
+ *   5 Take it with you  → key
  */
 
 type BeadKind = "clear" | "blue" | "pink" | "clover" | "lock" | "key";
+type PulseShape = "circle" | "square" | "pill";
 
 interface BeadDef {
   stage: number;
@@ -36,27 +37,27 @@ interface BeadDef {
   height: number;
   /** Decorative beads animate in but aren't clickable and don't pulse. */
   decorative?: boolean;
-  /** Exactly one bead per stage is the "representative" — gets the pulse glow. */
+  /** Exactly one bead per stage is the "representative" — gets the pulse ring. */
   representative?: boolean;
+  /** Shape of the pulsing outline ring around current bead. */
+  pulseShape?: PulseShape;
 }
 
 const BEADS: BeadDef[] = [
-  // First four round beads
-  { stage: 0, kind: "clear", src: beadClear, top: 132, left: 78,  width: 44, height: 42, representative: true },
-  { stage: 1, kind: "clear", src: beadClear, top: 188, left: 100, width: 46, height: 44, representative: true },
-  { stage: 2, kind: "clover", src: beadClover, top: 222, left: 108, width: 78, height: 78, decorative: true },
-  { stage: 2, kind: "blue",  src: beadBlue,  top: 250, left: 158, width: 48, height: 46, representative: true },
-  { stage: 3, kind: "clear", src: beadClear, top: 308, left: 178, width: 44, height: 42, representative: true },
-  // Square (lock)
-  { stage: 4, kind: "lock",  src: beadLock,  top: 348, left: 170, width: 64, height: 64, representative: true },
-  // Pink decorative + key
-  { stage: 5, kind: "pink",  src: beadPink,  top: 414, left: 184, width: 44, height: 42, decorative: true },
-  { stage: 5, kind: "key",   src: beadKey,   top: 448, left: 186, width: 44, height: 82, representative: true },
+  { stage: 0, kind: "clear",  src: beadClear,  top: 109, left: 75,  width: 44, height: 42, representative: true, pulseShape: "circle" },
+  { stage: 1, kind: "clear",  src: beadClear,  top: 158, left: 95,  width: 46, height: 44, representative: true, pulseShape: "circle" },
+  { stage: 2, kind: "clover", src: beadClover, top: 188, left: 100, width: 78, height: 78, representative: true, pulseShape: "circle" },
+  { stage: 3, kind: "blue",   src: beadBlue,   top: 248, left: 152, width: 48, height: 46, representative: true, pulseShape: "circle" },
+  // clear3 — decorative, sits between blue and lock on the string
+  { stage: 4, kind: "clear",  src: beadClear,  top: 296, left: 178, width: 44, height: 42, decorative: true },
+  { stage: 4, kind: "lock",   src: beadLock,   top: 334, left: 172, width: 64, height: 64, representative: true, pulseShape: "square" },
+  // pink — decorative, between lock and key
+  { stage: 5, kind: "pink",   src: beadPink,   top: 395, left: 188, width: 44, height: 42, decorative: true },
+  { stage: 5, kind: "key",    src: beadKey,    top: 432, left: 188, width: 44, height: 82, representative: true, pulseShape: "pill" },
 ];
 
 interface ChainArtProps {
   currentStage: number;
-  /** Stage 0 = Emotion uses a sequential reveal animation (string first, then beads cascade). */
   animateInitial: boolean;
   onBeadClick?: (stage: number) => void;
 }
@@ -84,26 +85,20 @@ export function ChainArt({ currentStage, animateInitial, onBeadClick }: ChainArt
       />
 
       {BEADS.map((b, i) => {
-        const delay = animateInitial && currentStage === 0
-          ? 0.55 + i * 0.16
-          : 0;
+        const delay = animateInitial && currentStage === 0 ? 0.55 + i * 0.16 : 0;
         return (
           <motion.button
             key={i}
             type="button"
             className={beadClass(b)}
-            style={{
-              top: b.top,
-              left: b.left,
-              width: b.width,
-              height: b.height,
-            }}
+            data-pulse-shape={b.pulseShape ?? "circle"}
+            style={{ top: b.top, left: b.left, width: b.width, height: b.height }}
             initial={animateInitial ? { opacity: 0, y: -8 } : { opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay }}
             onClick={() => {
               if (b.decorative) return;
-              if (b.stage > currentStage + 1) return; // only next + past clickable
+              if (b.stage > currentStage + 1) return;
               onBeadClick?.(b.stage);
             }}
             aria-label={`Stage ${b.stage + 1}`}

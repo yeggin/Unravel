@@ -344,8 +344,8 @@
   position: absolute;
   top: 0;
   left: 30px;
-  width: 200px;
-  height: 340px;
+  width: 220px;
+  height: 420px;
   pointer-events: none;
 }
 .chain-art .chain-bead {
@@ -365,14 +365,34 @@
 .chain-art .chain-bead.next {
   filter: drop-shadow(0 0 6px rgba(0,136,255,0.55)) drop-shadow(0 0 12px rgba(0,136,255,0.32));
 }
-/* Current bead: pulse the drop-shadow itself — this follows the bead's actual
-   silhouette (clover, key, square, circle) instead of a generic ring overlay. */
+/* Current bead: keep the soft glow AND draw a pulsing outline whose shape
+   roughly matches the bead silhouette (circle / rounded-square / tall pill). */
 .chain-art .chain-bead.current {
-  animation: bead-pulse-glow 1.9s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(0,136,255,0.75)) drop-shadow(0 0 14px rgba(0,136,255,0.45));
 }
-@keyframes bead-pulse-glow {
-  0%, 100% { filter: drop-shadow(0 0 5px rgba(0,136,255,0.55)) drop-shadow(0 0 10px rgba(0,136,255,0.35)); }
-  50%      { filter: drop-shadow(0 0 14px rgba(0,136,255,0.95)) drop-shadow(0 0 24px rgba(0,136,255,0.65)); }
+.chain-art .chain-bead.current::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border: 2px solid rgba(0,136,255,0.7);
+  pointer-events: none;
+  animation: bead-pulse-ring 1.8s ease-in-out infinite;
+}
+/* Default ring shape — round (covers clear / blue / pink / clover). */
+.chain-art .chain-bead.current::after { border-radius: 9999px; }
+/* Lock = rounded square ring. */
+.chain-art .chain-bead.current[data-pulse-shape="square"]::after {
+  border-radius: 14px;
+  inset: -6px;
+}
+/* Key = tall rounded pill ring. */
+.chain-art .chain-bead.current[data-pulse-shape="pill"]::after {
+  border-radius: 26px;
+  inset: -6px -8px;
+}
+@keyframes bead-pulse-ring {
+  0%, 100% { transform: scale(1);    opacity: 0.85; }
+  50%      { transform: scale(1.18); opacity: 0;    }
 }
 .chain-art .chain-bead.past:hover,
 .chain-art .chain-bead.next:hover { transform: scale(1.08); }
@@ -431,18 +451,19 @@
 .out-card .out-card-source:hover a { color: #0088ff; }
 
 /* Theory tooltip — blue dialogue box on hover/focus.
-   Sits a comfortable gap above the "Drawn from … Theory." trigger. */
+   Overlaps the white card slightly so cursor can travel from trigger → tip
+   without crossing a dead zone (which was hiding the "Learn more" link). */
 .theory-tip {
   position: absolute;
   left: 0;
-  bottom: calc(100% + 14px);
+  bottom: calc(100% - 6px);   /* overlap trigger by ~6px — no dead gap */
   background: #0088ff;
   color: white;
   padding: 14px 16px;
   border-radius: 6px;
   width: 250px;
   font-size: 0.75rem;
-  line-height: 1.65;          /* even line spacing throughout */
+  line-height: 1.7;           /* even line spacing throughout */
   box-shadow: 0 8px 20px rgba(0,136,255,0.25);
   opacity: 0;
   transform: translateY(4px);
@@ -454,11 +475,17 @@
 .theory-tip .theory-tip-title {
   font-family: var(--app-font-heading);
   font-size: 0.8125rem;
-  line-height: 1.65;
-  margin: 0 0 6px;
+  line-height: 1.5;
+  margin: 0 0 8px;
   display: flex;
   align-items: center;
   gap: 10px;
+}
+/* Force consistent line-height on body and links (fixes Root tooltip spacing). */
+.theory-tip .theory-tip-body {
+  display: block;
+  line-height: 1.7;
+  margin: 0;
 }
 /* Match the input-stage diamond icon: 9px hollow diamond → here filled white */
 .theory-tip .theory-tip-title::before {
@@ -535,22 +562,34 @@
   81%      { inset: 35%; }
 }
 
-/* ── Timeframe pills (What you can do) ─────────────────────────────────── */
-.timeframe-pill {
-  border: 1px solid #d1dce8;
-  background: white;
-  color: #1d2e48;
-  border-radius: 9999px;
-  padding: 8px 18px;
-  font-family: var(--app-font-body);
-  font-size: 0.8125rem;
+/* ── Timeframe selector (What you can do) — mirrors the input diamond chips ─ */
+.timeframe-row {
+  display: flex;
+  gap: 28px;
+  margin-bottom: 26px;
+  flex-wrap: wrap;
+}
+.timeframe-chip {
+  background: none;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s;
+  font-family: var(--app-font-body);
+  font-size: 0.875rem;
+  color: #1d2e48;
+  transition: color 0.2s;
 }
-.timeframe-pill:hover:not(:disabled) { border-color: #80bbff; }
-.timeframe-pill.selected {
-  border-color: #0088ff;
+.timeframe-chip .diamond-icon {
+  color: #d1dce8;
+}
+.timeframe-chip.selected,
+.timeframe-chip:hover:not(:disabled) { color: #0088ff; }
+.timeframe-chip.selected .diamond-icon {
   color: #0088ff;
-  box-shadow: 0 0 0 1px #0088ff;
+  background: #0088ff;
+  border-color: #0088ff;
 }
-.timeframe-pill:disabled { opacity: 0.35; cursor: default; }
+.timeframe-chip:disabled { opacity: 0.35; cursor: default; }

@@ -51,16 +51,22 @@ export function InsightView({ result, onReset, onBuildPlan, onSaveShare }: Insig
 
   const animateInitial = stage === 0 && !emotionAnimated;
 
+  // Stage 2 (Take a breath) is presented full-width with the chain hidden —
+  // it returns on the next stage.
+  const hideChain = stage === 2;
+
   return (
     <AppFrame currentBead={7} hideProgress>
       <div style={{ display: "flex", flex: 1, gap: 32, minHeight: 540 }}>
-        <div style={{ flexShrink: 0, paddingTop: 12 }}>
-          <ChainArt
-            currentStage={stage}
-            animateInitial={animateInitial}
-            onBeadClick={goToStage}
-          />
-        </div>
+        {!hideChain && (
+          <div style={{ flexShrink: 0, paddingTop: 12 }}>
+            <ChainArt
+              currentStage={stage}
+              animateInitial={animateInitial}
+              onBeadClick={goToStage}
+            />
+          </div>
+        )}
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <AnimatePresence mode="wait">
@@ -258,6 +264,7 @@ function TheorySourceLine({ theories }: { theories: string[] }) {
 }
 
 /* ─── Stage 2: Take a breath ────────────────────────────────────────────── */
+/* Rendered full-width (chain hidden) so it sits centered inside the frame. */
 function BreathStep() {
   return (
     <div
@@ -267,11 +274,11 @@ function BreathStep() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        gap: 48,
-        paddingTop: 60,
+        gap: 56,
+        minHeight: 480,
       }}
     >
-      <p style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.25rem", color: "#1d2e48", margin: 0, textAlign: "center" }}>
+      <p style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.375rem", color: "#1d2e48", margin: 0, textAlign: "center" }}>
         That was a lot. Take a breath.
       </p>
       <div className="diamond-burst" aria-hidden>
@@ -337,8 +344,8 @@ function WhatYouCanDoStep({ result }: { result: AnalyzeReflectionResponseType })
     <div style={{ paddingTop: 40 }}>
       <h2 style={sectionHeading}>What you can do</h2>
 
-      {/* Pills */}
-      <div style={{ display: "flex", gap: 10, marginBottom: 22, flexWrap: "wrap" }}>
+      {/* Diamond chip selector — same visual language as the input stage. */}
+      <div className="timeframe-row" role="tablist">
         {TIMEFRAMES.map((t) => {
           const isSelected = selected === t.key;
           const hasContent = buckets[t.key].length > 0;
@@ -346,11 +353,14 @@ function WhatYouCanDoStep({ result }: { result: AnalyzeReflectionResponseType })
             <button
               key={t.key}
               type="button"
+              role="tab"
+              aria-selected={isSelected}
               onClick={() => setSelected(t.key)}
-              className={`timeframe-pill${isSelected ? " selected" : ""}`}
+              className={`timeframe-chip${isSelected ? " selected" : ""}`}
               disabled={!hasContent}
               data-testid={`timeframe-${t.key}`}
             >
+              <span className={`diamond-icon${isSelected ? " filled" : ""}`} />
               {t.label}
             </button>
           );
