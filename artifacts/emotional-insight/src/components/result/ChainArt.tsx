@@ -46,7 +46,7 @@ interface BeadDef {
 }
 
 const BEADS: BeadDef[] = [
-  { stage: 0, kind: "clear",  src: beadClear,        top: 35,  left: 28,  width: 44, height: 42, representative: true, pulseShape: "circle" },
+  { stage: 0, kind: "clear",  src: beadClear,        top: 50,  left: 16,  width: 44, height: 42, representative: true, pulseShape: "circle" },
   { stage: 1, kind: "clear",  src: beadClear,        top: 104, left: 56,  width: 46, height: 44, representative: true, pulseShape: "circle" },
   { stage: 2, kind: "clover", src: beadCloverString, top: 120, left: 58,  width: 82, height: 83, representative: true, pulseShape: "circle" },
   { stage: 3, kind: "blue",   src: beadBlue,         top: 212, left: 134, width: 48, height: 46, representative: true, pulseShape: "circle" },
