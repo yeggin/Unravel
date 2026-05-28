@@ -48,8 +48,8 @@ interface BeadDef {
 const BEADS: BeadDef[] = [
   { stage: 0, kind: "clear",  src: beadClear,        top: 35,  left: 28,  width: 44, height: 42, representative: true, pulseShape: "circle" },
   { stage: 1, kind: "clear",  src: beadClear,        top: 104, left: 56,  width: 46, height: 44, representative: true, pulseShape: "circle" },
-  { stage: 2, kind: "clover", src: beadCloverString, top: 124, left: 64,  width: 82, height: 83, representative: true, pulseShape: "circle" },
-  { stage: 3, kind: "blue",   src: beadBlue,         top: 212, left: 124, width: 48, height: 46, representative: true, pulseShape: "circle" },
+  { stage: 2, kind: "clover", src: beadCloverString, top: 120, left: 58,  width: 82, height: 83, representative: true, pulseShape: "circle" },
+  { stage: 3, kind: "blue",   src: beadBlue,         top: 212, left: 134, width: 48, height: 46, representative: true, pulseShape: "circle" },
   // clear 3 — decorative, between blue and lock
   { stage: 4, kind: "clear",  src: beadClear,        top: 262, left: 154, width: 44, height: 42, decorative: true },
   { stage: 4, kind: "lock",   src: beadLock,         top: 288, left: 156, width: 64, height: 64, representative: true, pulseShape: "square" },
@@ -86,23 +86,25 @@ export function ChainArt({ currentStage, animateInitial, onBeadClick }: ChainArt
         ["--pulse-pill" as string]: `url(${keyOutline})`,
       }}
     >
-      {/* String + integrated key drawn first so all real beads sit on top. */}
+      {/* String + integrated key drawn first so all real beads sit on top.
+          Always fades in on mount (the chain remounts around the breath step). */}
       <motion.img
         src={chainString}
         alt=""
         aria-hidden
         className="chain-string"
-        initial={animateInitial ? { opacity: 0 } : { opacity: 1 }}
+        initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       />
 
       {BEADS.map((b, i) => {
-        // First-frame reveal: beads animate in from the bottom of the chain
-        // upward so the user's eye lands at the top where stage 1's content
-        // begins.
+        // Entrance reveal plays for ALL beads every time the chain mounts
+        // (initial frame, and again when it remounts after the breath step).
+        // Beads stagger in from the bottom of the chain upward so the eye
+        // lands at the top where the current stage's content begins.
         const reverseIdx = BEADS.length - 1 - i;
-        const delay = animateInitial && currentStage === 0 ? 0.55 + reverseIdx * 0.16 : 0;
+        const delay = 0.45 + reverseIdx * 0.14;
         const isInvisibleTarget = !b.src;
         return (
           <motion.button
@@ -111,7 +113,7 @@ export function ChainArt({ currentStage, animateInitial, onBeadClick }: ChainArt
             className={beadClass(b) + (isInvisibleTarget ? " invisible-target" : "")}
             data-pulse-shape={b.pulseShape ?? "circle"}
             style={{ top: b.top, left: b.left, width: b.width, height: b.height }}
-            initial={animateInitial ? { opacity: 0, y: -8 } : { opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay }}
             onClick={() => {
