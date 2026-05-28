@@ -17,7 +17,7 @@ const BLUE = "#0088ff";
  * Output flow — 6 chain stages, in order:
  *   0  Emotion            — chain reveal animation
  *   1  Why is this happening — collapsible boxes (CBT/IFS/NVC sources)
- *   2  Take a breath      — intermission diamond-burst animation
+ *   2  Take a breath      — intermission breathing quatrefoil animation
  *   3  A different angle  — current pattern vs. actual truth
  *   4  What you can do    — three timeframe pills (right now / today / this week)
  *   5  Take it with you   — affirmation + CTAs
@@ -278,9 +278,12 @@ function BreathStep() {
       <p style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.375rem", color: "#1d2e48", margin: 0, textAlign: "center" }}>
         That was a lot. Take a breath.
       </p>
-      <div className="diamond-burst" aria-hidden>
-        <div className="db-blue" />
-        <div className="db-white" />
+      <div className="breath-bloom" aria-hidden>
+        <div className="bb-petal tl" />
+        <div className="bb-petal tr" />
+        <div className="bb-petal bl" />
+        <div className="bb-petal br" />
+        <div className="bb-core" />
       </div>
     </div>
   );

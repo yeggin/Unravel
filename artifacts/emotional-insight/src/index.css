@@ -598,36 +598,61 @@
   border-radius: 2px;
 }
 
-/* ── Intermission diamond burst (placeholder animation) ──────────────────── */
-.diamond-burst {
+/* ── Breathing quatrefoil (intermission "take a breath" animation) ─────────
+   A four-petal cluster rotated 45° so it reads as a diamond/clover. Each loop:
+   inhale — petals draw tight and a white diamond opens at the centre; hold;
+   exhale — the four petals bloom apart into separate dots and fade away,
+   then the cycle resets. ~6s for a calm breathing cadence. */
+.breath-bloom {
   position: relative;
-  width: 80px;
-  height: 80px;
+  width: 96px;
+  height: 96px;
   transform: rotate(45deg);
 }
-.diamond-burst .db-blue {
+/* Each petal is a rounded blob; the cluster forms the quatrefoil when tight. */
+.breath-bloom .bb-petal {
   position: absolute;
-  inset: 0;
+  width: 50%;
+  height: 50%;
   background: #0088ff;
-  animation: db-expand 2.4s ease-in-out infinite;
+  border-radius: 42%;
+  animation: bb-breathe 6s ease-in-out infinite;
 }
-.diamond-burst .db-white {
+.breath-bloom .bb-petal.tl { top: 0;   left: 0;   transform-origin: bottom right; }
+.breath-bloom .bb-petal.tr { top: 0;   right: 0;  transform-origin: bottom left;  }
+.breath-bloom .bb-petal.bl { bottom: 0; left: 0;  transform-origin: top right;    }
+.breath-bloom .bb-petal.br { bottom: 0; right: 0; transform-origin: top left;     }
+/* White diamond that opens at the centre on the inhale. */
+.breath-bloom .bb-core {
   position: absolute;
-  inset: 35%;
-  background: white;
-  animation: db-white-grow 2.4s ease-in-out infinite;
+  inset: 38%;
+  background: #ffffff;
+  border-radius: 16%;
+  animation: bb-core 6s ease-in-out infinite;
 }
-@keyframes db-expand {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  60%      { transform: scale(1); opacity: 1; }
-  80%      { transform: scale(1.8); opacity: 0; }
-  81%      { transform: scale(0.8); opacity: 1; }
+/* Petals start tight (overlapping into a quatrefoil), bloom outward, fade. */
+@keyframes bb-breathe {
+  0%             { transform: translate(0, 0) scale(1);     opacity: 1; }
+  35%            { transform: translate(0, 0) scale(1.04);  opacity: 1; }  /* inhale: gentle swell */
+  60%            { transform: translate(0, 0) scale(1);     opacity: 1; }  /* hold */
+  82%            { transform: translate(var(--bb-x), var(--bb-y)) scale(0.62); opacity: 0; } /* exhale: bloom apart + fade */
+  100%           { transform: translate(0, 0) scale(1);     opacity: 1; }  /* reset */
 }
-@keyframes db-white-grow {
-  0%, 100% { inset: 35%; }
-  60%      { inset: 35%; }
-  80%      { inset: -10%; }
-  81%      { inset: 35%; }
+.breath-bloom .bb-petal.tl { --bb-x: -26px; --bb-y: -26px; }
+.breath-bloom .bb-petal.tr { --bb-x:  26px; --bb-y: -26px; }
+.breath-bloom .bb-petal.bl { --bb-x: -26px; --bb-y:  26px; }
+.breath-bloom .bb-petal.br { --bb-x:  26px; --bb-y:  26px; }
+@keyframes bb-core {
+  0%   { inset: 42%; opacity: 0; }
+  35%  { inset: 30%; opacity: 1; }   /* opens on the inhale */
+  60%  { inset: 30%; opacity: 1; }   /* hold */
+  78%  { inset: 46%; opacity: 0; }   /* closes as petals bloom away */
+  100% { inset: 42%; opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .breath-bloom .bb-petal,
+  .breath-bloom .bb-core { animation: none; }
+  .breath-bloom .bb-core { inset: 30%; opacity: 1; }
 }
 
 /* ── Timeframe selector (What you can do) — mirrors the input diamond chips ─ */
