@@ -378,25 +378,47 @@
 }
 .chain-art .chain-bead.decorative::after { content: none; }
 
-/* PAST clickable beads — soft STILL glow (no animation). */
-.chain-art .chain-bead.past:not(.decorative) {
-  filter: drop-shadow(0 0 5px rgba(0,136,255,0.5)) drop-shadow(0 0 10px rgba(0,136,255,0.3));
+/* Glow is rendered as a blurred SOLID-COLOR halo on a ::before pseudo behind
+   the bead — never as a `filter` on the bead image itself. Filters (and large
+   transform scales) promote the SVG to a cached raster layer, which is what
+   was making the selected/next beads look pixelated. The image now stays
+   completely unfiltered and crisp. */
+.chain-art .chain-bead.past:not(.decorative)::before,
+.chain-art .chain-bead.next:not(.decorative)::before,
+.chain-art .chain-bead.current::before {
+  content: "";
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  background: rgba(0,136,255,0.55);
+  filter: blur(7px);          /* blur a plain colour shape — bead stays sharp */
+  z-index: -1;
+  pointer-events: none;
 }
-/* NEXT clickable bead — same glow but gently pulsing in intensity. */
-.chain-art .chain-bead.next:not(.decorative) {
+/* PAST clickable beads — soft STILL glow. */
+.chain-art .chain-bead.past:not(.decorative)::before {
+  background: rgba(0,136,255,0.45);
+}
+/* NEXT clickable bead — same glow, gently pulsing in intensity (opacity only,
+   so nothing re-rasterizes the bead). */
+.chain-art .chain-bead.next:not(.decorative)::before {
   animation: bead-glow-pulse 2.2s ease-in-out infinite;
 }
 @keyframes bead-glow-pulse {
-  0%, 100% { filter: drop-shadow(0 0 3px rgba(0,136,255,0.25)); }
-  50%      { filter: drop-shadow(0 0 7px rgba(0,136,255,0.65)) drop-shadow(0 0 14px rgba(0,136,255,0.35)); }
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 1;   }
 }
 
-/* CURRENT (selected) bead — enlarged + still soft glow + pulsing ring sized
-   close to the bead itself. Single light drop-shadow keeps the SVG crisp. */
+/* CURRENT (selected) bead — enlarged via transform (no filter on the image,
+   so the SVG re-rasterizes crisply at the larger size) + stronger halo +
+   pulsing ring hugging the bead. */
 .chain-art .chain-bead.current {
-  filter: drop-shadow(0 0 4px rgba(0,136,255,0.65));
-  transform: scale(1.22);
+  transform: scale(1.35);
   z-index: 2;
+}
+.chain-art .chain-bead.current::before {
+  background: rgba(0,136,255,0.6);
+  filter: blur(8px);
 }
 .chain-art .chain-bead.current::after {
   content: "";

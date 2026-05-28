@@ -43,18 +43,22 @@ interface BeadDef {
   decorative?: boolean;
   representative?: boolean;
   pulseShape?: PulseShape;
+  /** Explicit stacking order (overrides defaults) for the lower beads where
+   *  the lock must tuck behind the pink bead but in front of the clear bead. */
+  zIndex?: number;
 }
 
 const BEADS: BeadDef[] = [
   { stage: 0, kind: "clear",  src: beadClear,        top: 50,  left: 26,  width: 44, height: 42, representative: true, pulseShape: "circle" },
   { stage: 1, kind: "clear",  src: beadClear,        top: 104, left: 56,  width: 46, height: 44, representative: true, pulseShape: "circle" },
-  { stage: 2, kind: "clover", src: beadCloverString, top: 138, left: 42,  width: 82, height: 83, representative: true, pulseShape: "circle" },
+  { stage: 2, kind: "clover", src: beadCloverString, top: 136, left: 42,  width: 82, height: 83, representative: true, pulseShape: "circle" },
   { stage: 3, kind: "blue",   src: beadBlue,         top: 212, left: 134, width: 48, height: 46, representative: true, pulseShape: "circle" },
-  // clear 3 — decorative, between blue and lock
-  { stage: 4, kind: "clear",  src: beadClear,        top: 262, left: 154, width: 44, height: 42, decorative: true },
-  { stage: 4, kind: "lock",   src: beadLock,         top: 300, left: 156, width: 64, height: 64, representative: true, pulseShape: "square" },
-  // pink — decorative, between lock and key
-  { stage: 5, kind: "pink",   src: beadPink,         top: 343, left: 176, width: 44, height: 42, decorative: true },
+  // clear 3 — decorative, between blue and lock (sits BEHIND the lock)
+  { stage: 4, kind: "clear",  src: beadClear,        top: 262, left: 154, width: 44, height: 42, decorative: true, zIndex: 1 },
+  // lock — in front of the clear bead, behind the pink bead
+  { stage: 4, kind: "lock",   src: beadLock,         top: 300, left: 156, width: 64, height: 64, representative: true, pulseShape: "square", zIndex: 2 },
+  // pink — decorative, between lock and key (sits ABOVE the lock)
+  { stage: 5, kind: "pink",   src: beadPink,         top: 343, left: 176, width: 44, height: 42, decorative: true, zIndex: 4 },
   // key — integrated into the string SVG. We render an invisible bead-sized
   //       button positioned over the drawn key so it stays clickable.
   { stage: 5, kind: "key",    /* no src */            top: 399, left: 172, width: 49, height: 86, representative: true, pulseShape: "pill" },
@@ -111,7 +115,7 @@ export function ChainArt({ currentStage, animateInitial, onBeadClick }: ChainArt
             type="button"
             className={beadClass(b) + (isInvisibleTarget ? " invisible-target" : "")}
             data-pulse-shape={b.pulseShape ?? "circle"}
-            style={{ top: b.top, left: b.left, width: b.width, height: b.height }}
+            style={{ top: b.top, left: b.left, width: b.width, height: b.height, ...(b.zIndex != null ? { zIndex: b.zIndex } : {}) }}
             initial={animateInitial ? { opacity: 0, y: -8 } : { opacity: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: animateInitial ? 0.35 : 0.4, delay }}
