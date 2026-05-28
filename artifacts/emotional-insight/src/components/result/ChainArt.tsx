@@ -48,7 +48,7 @@ interface BeadDef {
 const BEADS: BeadDef[] = [
   { stage: 0, kind: "clear",  src: beadClear,        top: 50,  left: 16,  width: 44, height: 42, representative: true, pulseShape: "circle" },
   { stage: 1, kind: "clear",  src: beadClear,        top: 104, left: 56,  width: 46, height: 44, representative: true, pulseShape: "circle" },
-  { stage: 2, kind: "clover", src: beadCloverString, top: 120, left: 58,  width: 82, height: 83, representative: true, pulseShape: "circle" },
+  { stage: 2, kind: "clover", src: beadCloverString, top: 130, left: 48,  width: 82, height: 83, representative: true, pulseShape: "circle" },
   { stage: 3, kind: "blue",   src: beadBlue,         top: 212, left: 134, width: 48, height: 46, representative: true, pulseShape: "circle" },
   // clear 3 — decorative, between blue and lock
   { stage: 4, kind: "clear",  src: beadClear,        top: 262, left: 154, width: 44, height: 42, decorative: true },
@@ -99,12 +99,11 @@ export function ChainArt({ currentStage, animateInitial, onBeadClick }: ChainArt
       />
 
       {BEADS.map((b, i) => {
-        // Entrance reveal plays for ALL beads every time the chain mounts
-        // (initial frame, and again when it remounts after the breath step).
-        // Beads stagger in from the bottom of the chain upward so the eye
-        // lands at the top where the current stage's content begins.
+        // First output page (animateInitial): beads stagger in from the bottom
+        // of the chain upward. When the chain REAPPEARS after the breath step
+        // (the "different angle" page), it simply fades in together — no stagger.
         const reverseIdx = BEADS.length - 1 - i;
-        const delay = 0.45 + reverseIdx * 0.14;
+        const delay = animateInitial ? 0.45 + reverseIdx * 0.14 : 0;
         const isInvisibleTarget = !b.src;
         return (
           <motion.button
@@ -113,9 +112,9 @@ export function ChainArt({ currentStage, animateInitial, onBeadClick }: ChainArt
             className={beadClass(b) + (isInvisibleTarget ? " invisible-target" : "")}
             data-pulse-shape={b.pulseShape ?? "circle"}
             style={{ top: b.top, left: b.left, width: b.width, height: b.height }}
-            initial={{ opacity: 0, y: -8 }}
+            initial={animateInitial ? { opacity: 0, y: -8 } : { opacity: 0 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay }}
+            transition={{ duration: animateInitial ? 0.35 : 0.4, delay }}
             onClick={() => {
               if (b.decorative) return;
               if (b.stage > currentStage + 1) return;
