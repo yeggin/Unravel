@@ -46,13 +46,13 @@ interface BeadDef {
 }
 
 const BEADS: BeadDef[] = [
-  { stage: 0, kind: "clear",  src: beadClear,        top: 50,  left: 16,  width: 44, height: 42, representative: true, pulseShape: "circle" },
+  { stage: 0, kind: "clear",  src: beadClear,        top: 50,  left: 26,  width: 44, height: 42, representative: true, pulseShape: "circle" },
   { stage: 1, kind: "clear",  src: beadClear,        top: 104, left: 56,  width: 46, height: 44, representative: true, pulseShape: "circle" },
-  { stage: 2, kind: "clover", src: beadCloverString, top: 130, left: 48,  width: 82, height: 83, representative: true, pulseShape: "circle" },
+  { stage: 2, kind: "clover", src: beadCloverString, top: 138, left: 42,  width: 82, height: 83, representative: true, pulseShape: "circle" },
   { stage: 3, kind: "blue",   src: beadBlue,         top: 212, left: 134, width: 48, height: 46, representative: true, pulseShape: "circle" },
   // clear 3 — decorative, between blue and lock
   { stage: 4, kind: "clear",  src: beadClear,        top: 262, left: 154, width: 44, height: 42, decorative: true },
-  { stage: 4, kind: "lock",   src: beadLock,         top: 288, left: 156, width: 64, height: 64, representative: true, pulseShape: "square" },
+  { stage: 4, kind: "lock",   src: beadLock,         top: 300, left: 156, width: 64, height: 64, representative: true, pulseShape: "square" },
   // pink — decorative, between lock and key
   { stage: 5, kind: "pink",   src: beadPink,         top: 343, left: 176, width: 44, height: 42, decorative: true },
   // key — integrated into the string SVG. We render an invisible bead-sized

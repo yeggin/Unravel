@@ -368,11 +368,13 @@
    rendering anything visible — only the pulse ring shows when current. */
 .chain-art .chain-bead.invisible-target { background: transparent; }
 
-/* Decorative beads (3rd clear, pink) — no glow, no pointer affordance. */
+/* Decorative beads (3rd clear, pink) — no glow, no pointer affordance.
+   Sit above the other beads so the lock tucks behind the pink bead. */
 .chain-art .chain-bead.decorative {
   filter: none !important;
   animation: none !important;
   cursor: default;
+  z-index: 3;
 }
 .chain-art .chain-bead.decorative::after { content: none; }
 
@@ -543,13 +545,13 @@
 }
 .theory-tip .theory-tip-body { margin: 0; }
 .theory-tip a {
-  color: rgba(255, 255, 255, 0.75);   /* white @ 75% opacity */
+  color: #ffffff;                     /* solid white — always legible on blue */
   text-decoration: underline;
   text-underline-offset: 2px;
   display: inline-block;
   margin-top: 10px;
 }
-.theory-tip a:hover { color: rgba(255, 255, 255, 0.95); }
+.theory-tip a:hover { color: #ffffff; opacity: 0.85; }
 .out-card-source:hover .theory-tip,
 .out-card-source:focus-within .theory-tip,
 .theory-tip:hover {
