@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AppFrame } from "@/components/AppFrame";
 import { ChainArtTransition } from "./ChainArt";
+import { BreathBloom } from "./BreathBloom";
 import type { AnalyzeReflectionResponseType } from "@/lib/api";
 
 interface InsightViewProps {
@@ -278,13 +279,7 @@ function BreathStep() {
       <p style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.375rem", color: "#1d2e48", margin: 0, textAlign: "center" }}>
         That was a lot. Take a breath.
       </p>
-      <div className="breath-bloom" aria-hidden>
-        <div className="bb-petal tl" />
-        <div className="bb-petal tr" />
-        <div className="bb-petal bl" />
-        <div className="bb-petal br" />
-        <div className="bb-core" />
-      </div>
+      <BreathBloom />
     </div>
   );
 }
