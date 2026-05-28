@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AppFrame } from "@/components/AppFrame";
-import { ChainArt } from "./ChainArt";
+import { ChainArtTransition } from "./ChainArt";
 import type { AnalyzeReflectionResponseType } from "@/lib/api";
 
 interface InsightViewProps {
@@ -58,15 +58,12 @@ export function InsightView({ result, onReset, onBuildPlan, onSaveShare }: Insig
   return (
     <AppFrame currentBead={7} hideProgress>
       <div style={{ display: "flex", flex: 1, gap: 32, minHeight: 540 }}>
-        {!hideChain && (
-          <div style={{ flexShrink: 0, paddingTop: 12 }}>
-            <ChainArt
-              currentStage={stage}
-              animateInitial={animateInitial}
-              onBeadClick={goToStage}
-            />
-          </div>
-        )}
+        <ChainArtTransition
+          show={!hideChain}
+          currentStage={stage}
+          animateInitial={animateInitial}
+          onBeadClick={goToStage}
+        />
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <AnimatePresence mode="wait">

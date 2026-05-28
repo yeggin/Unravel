@@ -335,19 +335,22 @@
 /* ── Output: Chain art ───────────────────────────────────────────────────── */
 .chain-art {
   position: relative;
-  width: 300px;
-  height: 540px;
+  width: 250px;
+  height: 510px;
   flex-shrink: 0;
   user-select: none;
 }
 .chain-art .chain-string {
   position: absolute;
   top: 0;
-  left: 30px;
-  width: 220px;
-  height: 420px;
+  left: 0;
+  width: 240px;
+  height: 485px;
   pointer-events: none;
+  /* String + integrated key are drawn underneath all real beads. */
+  z-index: 0;
 }
+.chain-art .chain-bead { z-index: 1; }
 .chain-art .chain-bead {
   position: absolute;
   padding: 0;
@@ -360,44 +363,60 @@
 .chain-art .chain-bead.visible { opacity: 1; }
 .chain-art .chain-bead.locked { cursor: default; opacity: 0.35; pointer-events: none; }
 .chain-art .chain-bead img { display: block; width: 100%; height: 100%; pointer-events: none; }
+/* Invisible click target overlay (used for the key bead, which is already
+   drawn into the string SVG underneath). Keeps the area clickable without
+   rendering anything visible — only the pulse ring shows when current. */
+.chain-art .chain-bead.invisible-target { background: transparent; }
+
 /* Decorative beads (3rd clear, pink) — no glow, no pointer affordance. */
 .chain-art .chain-bead.decorative {
   filter: none !important;
+  animation: none !important;
   cursor: default;
 }
 .chain-art .chain-bead.decorative::after { content: none; }
 
-/* Clickable past/next beads — soft blue glow */
-.chain-art .chain-bead.past:not(.decorative),
-.chain-art .chain-bead.next:not(.decorative) {
-  filter: drop-shadow(0 0 5px rgba(0,136,255,0.45)) drop-shadow(0 0 10px rgba(0,136,255,0.25));
+/* PAST clickable beads — soft STILL glow (no animation). */
+.chain-art .chain-bead.past:not(.decorative) {
+  filter: drop-shadow(0 0 5px rgba(0,136,255,0.5)) drop-shadow(0 0 10px rgba(0,136,255,0.3));
 }
-/* Current bead — NO filter on the SVG itself (filters were rasterizing the
-   SVG and making it look blurry/low-res). The pulsing outline ring around
-   the bead carries all the emphasis. */
-.chain-art .chain-bead.current { filter: none; }
+/* NEXT clickable bead — same glow but gently pulsing in intensity. */
+.chain-art .chain-bead.next:not(.decorative) {
+  animation: bead-glow-pulse 2.2s ease-in-out infinite;
+}
+@keyframes bead-glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 3px rgba(0,136,255,0.25)); }
+  50%      { filter: drop-shadow(0 0 7px rgba(0,136,255,0.65)) drop-shadow(0 0 14px rgba(0,136,255,0.35)); }
+}
+
+/* CURRENT (selected) bead — enlarged + still soft glow + pulsing ring sized
+   close to the bead itself. Single light drop-shadow keeps the SVG crisp. */
+.chain-art .chain-bead.current {
+  filter: drop-shadow(0 0 4px rgba(0,136,255,0.65));
+  transform: scale(1.08);
+  z-index: 2;
+}
 .chain-art .chain-bead.current::after {
   content: "";
   position: absolute;
-  inset: -8px;
+  inset: -2px;                /* ring hugs the bead — close to bead size */
   pointer-events: none;
   animation: bead-pulse-ring 1.8s ease-in-out infinite;
-  /* Default: circular ring via border. */
-  border: 2px solid rgba(0,136,255,0.7);
+  border: 2px solid rgba(0,136,255,0.75);
   border-radius: 9999px;
 }
-/* Lock = square outline drawn from the supplied SVG outline (precise shape). */
+/* Lock = square outline drawn from the supplied SVG (precise shape). */
 .chain-art .chain-bead.current[data-pulse-shape="square"]::after {
-  inset: -6px;
+  inset: -2px;
   border: none;
   border-radius: 0;
   background-image: var(--pulse-square);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
-/* Key = key-shaped outline from the supplied SVG outline. */
+/* Key = key-shaped outline from the supplied SVG. */
 .chain-art .chain-bead.current[data-pulse-shape="pill"]::after {
-  inset: -4px -6px;
+  inset: -2px -3px;
   border: none;
   border-radius: 0;
   background-image: var(--pulse-pill);
@@ -406,7 +425,7 @@
 }
 @keyframes bead-pulse-ring {
   0%, 100% { transform: scale(1);    opacity: 0.85; }
-  50%      { transform: scale(1.18); opacity: 0;    }
+  50%      { transform: scale(1.12); opacity: 0;    }
 }
 .chain-art .chain-bead.past:not(.decorative):hover,
 .chain-art .chain-bead.next:not(.decorative):hover { transform: scale(1.08); }
