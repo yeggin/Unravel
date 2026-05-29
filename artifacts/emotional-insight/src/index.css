@@ -338,6 +338,11 @@
   height: 510px;
   flex-shrink: 0;
   user-select: none;
+  /* Establish a local stacking context so the key bead's negative z-index
+     (its glow tucks behind the key drawn into the string SVG) is clamped to
+     this container and never falls behind ancestor backgrounds — which would
+     make its invisible click target non-hittable. */
+  isolation: isolate;
 }
 .chain-art .chain-string {
   position: absolute;
@@ -412,7 +417,17 @@
   inset: 0%;
   filter: blur(9px);
 }
-.chain-art .chain-bead.next[data-pulse-shape="square"]:not(.decorative)::before,
+/* Clover is a large circular bead — give it a tighter, smaller halo. */
+.chain-art .chain-bead.next[data-bead-kind="clover"]:not(.decorative)::before {
+  inset: 18%;
+  filter: blur(6px);
+}
+/* Square (lock) charm — slightly larger halo. */
+.chain-art .chain-bead.next[data-pulse-shape="square"]:not(.decorative)::before {
+  inset: 8%;
+  filter: blur(7px);
+}
+/* Pill (key) charm — smaller, tighter halo. */
 .chain-art .chain-bead.next[data-pulse-shape="pill"]:not(.decorative)::before {
   inset: 16%;
   filter: blur(6px);
@@ -436,10 +451,10 @@
 .chain-art .chain-bead.current::after {
   content: "";
   position: absolute;
-  inset: -1px;                /* ring starts just outside the bead */
+  inset: 0;                   /* ring hugs the bead edge */
   pointer-events: none;
   animation: bead-pulse-ring 1.8s ease-in-out infinite;
-  border: 2px solid rgba(0,136,255,0.75);
+  border: 1.5px solid rgba(0,136,255,0.75);
   border-radius: 9999px;
 }
 /* Lock = square outline drawn from the supplied SVG (precise shape). */
@@ -453,7 +468,7 @@
 }
 /* Key = key-shaped outline from the supplied SVG. */
 .chain-art .chain-bead.current[data-pulse-shape="pill"]::after {
-  inset: -1px -5px -3px -1px;  /* shifted ~2px right & 1px down to centre on the key */
+  inset: 0 -4px -2px 0;       /* 1px smaller, still shifted right & down to centre on the key */
   border: none;
   border-radius: 0;
   background-image: var(--pulse-pill);
@@ -615,8 +630,8 @@
 .unravel-stage {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 28px;
+  align-items: flex-start;
+  gap: 18px;
 }
 .unravel-knot {
   padding: 0;
@@ -629,8 +644,8 @@
   cursor: default;
 }
 .unravel-knot img {
-  width: 420px;
-  max-width: 70vw;
+  width: 840px;
+  max-width: 88vw;
   height: auto;
   display: block;
   pointer-events: none;
@@ -645,6 +660,24 @@
 }
 .unravel-knot:not(:disabled):hover + .unravel-hint {
   color: #0088ff;
+}
+
+/* Loading screen — single heading line with a 3-2-1-2 looping ellipsis. */
+.loading-ellipsis {
+  display: inline-block;
+  width: 1.4em;
+  text-align: left;
+}
+.loading-ellipsis::after {
+  content: "...";
+  animation: ellipsis-cycle 1.6s infinite;
+}
+@keyframes ellipsis-cycle {
+  0%   { content: "..."; }
+  25%  { content: ".."; }
+  50%  { content: "."; }
+  75%  { content: ".."; }
+  100% { content: "..."; }
 }
 
 /* ── Breathing quatrefoil (intermission "take a breath" animation) ─────────

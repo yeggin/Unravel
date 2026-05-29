@@ -136,16 +136,14 @@ export function IntakePage() {
   if (phase === "loading") {
     return (
       <AppFrame bare>
-        <motion.div
+        <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}
+          style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.25rem", color: "#1d2e48", textAlign: "center", margin: 0 }}
         >
-          <p style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.25rem", color: "#1d2e48", marginBottom: 8 }}>
-            Sitting with what you wrote
-          </p>
-          <p style={{ fontSize: "0.875rem", color: "#a8b3c1" }}>A moment to find what's underneath…</p>
-        </motion.div>
+          a moment to find what's underneath
+          <span className="loading-ellipsis" aria-hidden />
+        </motion.p>
       </AppFrame>
     );
   }

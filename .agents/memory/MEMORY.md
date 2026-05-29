@@ -1,1 +1,2 @@
 - [AnimatePresence initial=false gotcha](animatepresence-initial-false.md) — initial={false} propagates via context and kills nested motion children mount animations; gate replay with state instead.
+- [Negative z-index needs isolated parent](negative-zindex-stacking.md) — z-index:-1 child falls behind ancestor background (and stops being clickable) unless parent has its own stacking context (isolation:isolate).

@@ -61,7 +61,7 @@ const BEADS: BeadDef[] = [
   { stage: 5, kind: "pink",   src: beadPink,         top: 343, left: 176, width: 44, height: 42, decorative: true, zIndex: 4 },
   // key — integrated into the string SVG. We render an invisible bead-sized
   //       button positioned over the drawn key so it stays clickable.
-  { stage: 5, kind: "key",    /* no src */            top: 399, left: 172, width: 49, height: 86, representative: true, pulseShape: "pill" },
+  { stage: 5, kind: "key",    /* no src */            top: 399, left: 172, width: 49, height: 86, representative: true, pulseShape: "pill", zIndex: -1 },
 ];
 
 interface ChainArtProps {
@@ -115,6 +115,7 @@ export function ChainArt({ currentStage, animateInitial, onBeadClick }: ChainArt
             type="button"
             className={beadClass(b) + (isInvisibleTarget ? " invisible-target" : "")}
             data-pulse-shape={b.pulseShape ?? "circle"}
+            data-bead-kind={b.kind}
             style={{ top: b.top, left: b.left, width: b.width, height: b.height, ...(b.zIndex != null ? { zIndex: b.zIndex } : {}) }}
             initial={animateInitial ? { opacity: 0, y: -8 } : { opacity: 0 }}
             animate={{ opacity: 1, y: 0 }}

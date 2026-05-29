@@ -91,7 +91,16 @@ export function InsightView({ result, onReset, onBuildPlan, onSaveShare }: Insig
             </motion.div>
           </AnimatePresence>
 
-          <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ marginTop: 24, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <button
+              type="button"
+              className="nav-btn-text nav-btn-back"
+              onClick={() => goToStage(stage - 1)}
+              disabled={stage === 0}
+              data-testid="button-output-back"
+            >
+              &lt; back
+            </button>
             {stage < TOTAL_STAGES - 1 ? (
               <button
                 type="button"
@@ -129,6 +138,7 @@ function EmotionStep({ result }: { result: AnalyzeReflectionResponseType }) {
           fontSize: "1.5rem",
           color: BLUE,
           margin: 0,
+          marginTop: 44,
           marginBottom: 8,
           textTransform: "capitalize",
         }}
