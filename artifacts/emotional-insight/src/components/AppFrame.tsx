@@ -44,6 +44,9 @@ interface AppFrameProps {
   currentBead?: number;
   /** When true, hides the top bead/knot progress bar entirely (used by the output flow). */
   hideProgress?: boolean;
+  /** When true, drops the inner decorative frame + progress bar entirely and just
+   *  centers the content (used for the loading and "unravel" intermissions). */
+  bare?: boolean;
 }
 
 function HLine({ style }: { style: CSSProperties }) {
@@ -241,28 +244,14 @@ function AnimatedBorderDots({
   );
 }
 
-export function AppFrame({ children, currentBead = 0, hideProgress = false }: AppFrameProps) {
-  const frameRef = useRef<HTMLDivElement | null>(null);
+/*
+ * BACKGROUND BLOBS
+ * Figma: image37 blur-[27.5px] left=-110 top=385, size=688
+ *        image31 blur-[34.336px] left=318 top=516, w=603 h=653
+ */
+function BackgroundBlobs() {
   return (
-    /*
-     * PAGE ROOT — thick outer blue border (Figma: border-[4.609px] solid #08f)
-     * This wraps the entire viewport.
-     */
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "white",
-        border: `4.6px solid ${BLUE}`,
-        boxSizing: "border-box",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/*
-       * BACKGROUND BLOBS
-       * Figma: image37 blur-[27.5px] left=-110 top=385, size=688
-       *        image31 blur-[34.336px] left=318 top=516, w=603 h=653
-       */}
+    <>
       <div
         aria-hidden
         style={{
@@ -295,6 +284,66 @@ export function AppFrame({ children, currentBead = 0, hideProgress = false }: Ap
           zIndex: 0,
         }}
       />
+    </>
+  );
+}
+
+export function AppFrame({ children, currentBead = 0, hideProgress = false, bare = false }: AppFrameProps) {
+  const frameRef = useRef<HTMLDivElement | null>(null);
+
+  /*
+   * BARE MODE — outer window border only; no inner decorative frame, no
+   * progress bar. Content is simply centered. Used for the loading screen and
+   * the "unravel" intermission.
+   */
+  if (bare) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "white",
+          border: `4.6px solid ${BLUE}`,
+          boxSizing: "border-box",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <BackgroundBlobs />
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "calc(100vh - 9.2px)",
+            padding: "28px 48px",
+            textAlign: "center",
+          }}
+        >
+          {children}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    /*
+     * PAGE ROOT — thick outer blue border (Figma: border-[4.609px] solid #08f)
+     * This wraps the entire viewport.
+     */
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "white",
+        border: `4.6px solid ${BLUE}`,
+        boxSizing: "border-box",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <BackgroundBlobs />
 
       {/* CONTENT COLUMN — centred, relative z-index above blobs */}
       <div

@@ -24,6 +24,7 @@ import { DiamondList } from "@/components/intake/ChipSelect";
 import { AttachmentQuiz } from "@/components/intake/AttachmentQuiz";
 import { FamilyQuiz } from "@/components/intake/FamilyQuiz";
 import { InsightView } from "@/components/result/InsightView";
+import { UnravelKnot } from "@/components/UnravelKnot";
 
 const BLUE = "#0088ff";
 const INTENSITY_LABELS = ["barely there", "a hum", "noticeable", "loud", "overwhelming"];
@@ -52,7 +53,7 @@ const initial: IntakeState = {
   mbti: null,
 };
 
-type Phase = "landing" | "structured" | "loading" | "result";
+type Phase = "landing" | "structured" | "loading" | "unravel" | "result";
 
 /* ── Page ──────────────────────────────────────────────────────────────────── */
 export function IntakePage() {
@@ -70,7 +71,7 @@ export function IntakePage() {
     mutation: {
       onSuccess: (data) => {
         setResult(data);
-        setPhase("result");
+        setPhase("unravel");
       },
       onError: () => {
         toast({
@@ -131,19 +132,34 @@ export function IntakePage() {
     else setPhase("landing");
   }
 
-  /* ── LOADING ── */
+  /* ── LOADING ── (bare: no inner frame border, no progress bar) */
   if (phase === "loading") {
     return (
-      <AppFrame currentBead={0}>
+      <AppFrame bare>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}
+          style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}
         >
           <p style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.25rem", color: "#1d2e48", marginBottom: 8 }}>
             Sitting with what you wrote
           </p>
           <p style={{ fontSize: "0.875rem", color: "#a8b3c1" }}>A moment to find what's underneath…</p>
+        </motion.div>
+      </AppFrame>
+    );
+  }
+
+  /* ── UNRAVEL ── (bare: clickable knot + prompt only) */
+  if (phase === "unravel") {
+    return (
+      <AppFrame bare>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          <UnravelKnot onComplete={() => setPhase("result")} />
         </motion.div>
       </AppFrame>
     );

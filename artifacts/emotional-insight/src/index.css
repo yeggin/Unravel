@@ -600,6 +600,42 @@
   border-radius: 2px;
 }
 
+/* ── Unravel intermission (clickable knot that unravels into a line) ───────── */
+.unravel-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+.unravel-knot {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: block;
+}
+.unravel-knot:disabled {
+  cursor: default;
+}
+.unravel-knot img {
+  width: 420px;
+  max-width: 70vw;
+  height: auto;
+  display: block;
+  pointer-events: none;
+}
+.unravel-hint {
+  margin: 0;
+  font-family: var(--app-font-body);
+  font-size: 0.9375rem;
+  letter-spacing: 0.02em;
+  color: #a8b3c1;
+  transition: color 0.3s ease;
+}
+.unravel-knot:not(:disabled):hover + .unravel-hint {
+  color: #0088ff;
+}
+
 /* ── Breathing quatrefoil (intermission "take a breath" animation) ─────────
    A click-to-play frame sequence (exported from Figma): the blue clover opens
    a white centre, blooms apart into petals, then dissolves. At rest it shows
