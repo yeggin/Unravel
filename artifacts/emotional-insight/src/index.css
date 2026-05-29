@@ -601,40 +601,19 @@
   border-radius: 2px;
 }
 
-/* ── Breathing quatrefoil (intermission "take a breath" animation) ─────────
-   A click-to-play frame sequence (exported from Figma): the blue clover opens
-   a white centre, blooms apart into petals, then dissolves. At rest it shows
-   the full clover with a faint "tap to breathe" hint. */
+/* ── Breathing knot (intermission "take a breath" animation) ───────────────
+   A slow loop alternating between two knot frames for a calm in/out cadence. */
 .breath-bloom {
   position: relative;
-  width: 132px;
-  height: 132px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .breath-bloom img {
-  width: 115px;
-  height: 115px;
+  width: 160px;
+  height: auto;
   display: block;
-  pointer-events: none;
 }
-.breath-bloom .breath-bloom-hint {
-  position: absolute;
-  bottom: -26px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  color: #a8b3c1;
-  white-space: nowrap;
-  transition: opacity 0.3s ease;
-}
-.breath-bloom:hover .breath-bloom-hint { color: #0088ff; }
 
 /* ── Timeframe selector (What you can do) — mirrors the input diamond chips ─ */
 .timeframe-row {
