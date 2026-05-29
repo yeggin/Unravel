@@ -70,7 +70,7 @@ export function BreathBloom() {
       <img src={FRAMES[frame]} alt="" aria-hidden />
       {!playing && (
         <span className="breath-bloom-hint" aria-hidden>
-          tap to breathe
+          click to breathe
         </span>
       )}
     </button>

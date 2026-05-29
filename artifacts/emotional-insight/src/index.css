@@ -406,6 +406,17 @@
 .chain-art .chain-bead.next:not(.decorative)::before {
   animation: bead-glow-pulse 2.2s ease-in-out infinite;
 }
+/* Next bead glow sized per shape: circular beads get a slightly larger halo,
+   irregular shapes (lock/key) a slightly smaller, tighter one. */
+.chain-art .chain-bead.next[data-pulse-shape="circle"]:not(.decorative)::before {
+  inset: 0%;
+  filter: blur(9px);
+}
+.chain-art .chain-bead.next[data-pulse-shape="square"]:not(.decorative)::before,
+.chain-art .chain-bead.next[data-pulse-shape="pill"]:not(.decorative)::before {
+  inset: 16%;
+  filter: blur(6px);
+}
 @keyframes bead-glow-pulse {
   0%, 100% { opacity: 0.4; }
   50%      { opacity: 1;   }
@@ -425,7 +436,7 @@
 .chain-art .chain-bead.current::after {
   content: "";
   position: absolute;
-  inset: -2px;                /* ring hugs the bead — close to bead size */
+  inset: -1px;                /* ring starts just outside the bead */
   pointer-events: none;
   animation: bead-pulse-ring 1.8s ease-in-out infinite;
   border: 2px solid rgba(0,136,255,0.75);
@@ -433,7 +444,7 @@
 }
 /* Lock = square outline drawn from the supplied SVG (precise shape). */
 .chain-art .chain-bead.current[data-pulse-shape="square"]::after {
-  inset: -2px;
+  inset: -1px;
   border: none;
   border-radius: 0;
   background-image: var(--pulse-square);
@@ -442,7 +453,7 @@
 }
 /* Key = key-shaped outline from the supplied SVG. */
 .chain-art .chain-bead.current[data-pulse-shape="pill"]::after {
-  inset: -2px -3px;
+  inset: -1px -5px -3px -1px;  /* shifted ~2px right & 1px down to centre on the key */
   border: none;
   border-radius: 0;
   background-image: var(--pulse-pill);
@@ -627,8 +638,8 @@
 .unravel-hint {
   margin: 0;
   font-family: var(--app-font-body);
-  font-size: 0.9375rem;
-  letter-spacing: 0.02em;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
   color: #a8b3c1;
   transition: color 0.3s ease;
 }
@@ -639,7 +650,7 @@
 /* ── Breathing quatrefoil (intermission "take a breath" animation) ─────────
    A click-to-play frame sequence (exported from Figma): the blue clover opens
    a white centre, blooms apart into petals, then dissolves. At rest it shows
-   the full clover with a faint "tap to breathe" hint. */
+   the full clover with a faint "click to breathe" hint. */
 .breath-bloom {
   position: relative;
   width: 132px;
@@ -660,7 +671,7 @@
 }
 .breath-bloom .breath-bloom-hint {
   position: absolute;
-  bottom: -26px;
+  bottom: -16px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 0.75rem;

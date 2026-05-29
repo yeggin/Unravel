@@ -145,7 +145,7 @@ export function ChainArt({ currentStage, animateInitial, onBeadClick }: ChainArt
 export function ChainArtTransition(props: ChainArtProps & { show: boolean }) {
   const { show, ...rest } = props;
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="wait">
       {show && (
         <motion.div
           key="chain"

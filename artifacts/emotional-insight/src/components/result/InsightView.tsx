@@ -121,7 +121,8 @@ export function InsightView({ result, onReset, onBuildPlan, onSaveShare }: Insig
 /* ─── Stage 0: Emotion ──────────────────────────────────────────────────── */
 function EmotionStep({ result }: { result: AnalyzeReflectionResponseType }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", paddingTop: 90 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", paddingTop: 40 }}>
+      <h2 style={sectionHeading}>You may be feeling…</h2>
       <h1
         style={{
           fontFamily: "var(--app-font-heading)",

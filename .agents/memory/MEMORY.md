@@ -1,0 +1,1 @@
+- [AnimatePresence initial=false gotcha](animatepresence-initial-false.md) — initial={false} propagates via context and kills nested motion children mount animations; gate replay with state instead.
