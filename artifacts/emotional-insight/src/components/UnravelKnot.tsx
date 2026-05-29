@@ -60,7 +60,7 @@ export function UnravelKnot({ onComplete }: { onComplete: () => void }) {
         <img src={FRAMES[frame]} alt="" aria-hidden />
       </button>
       <p className="unravel-hint" aria-live="polite">
-        {playing ? "unraveling…" : "Click to unravel your thoughts"}
+        {playing ? "unraveling…" : "click to unravel your thoughts"}
       </p>
     </div>
   );

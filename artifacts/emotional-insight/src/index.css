@@ -406,6 +406,11 @@
   filter: blur(6px);
   background: rgba(0,136,255,0.45);
 }
+/* Clover's still (visited) glow matches its smaller pulsing-next halo size. */
+.chain-art .chain-bead.past[data-bead-kind="clover"]:not(.decorative)::before {
+  inset: 18%;
+  filter: blur(6px);
+}
 /* NEXT clickable bead — same glow, gently pulsing in intensity (opacity only,
    so nothing re-rasterizes the bead). */
 .chain-art .chain-bead.next:not(.decorative)::before {
@@ -442,14 +447,14 @@
   transform: translate(-2px, 2px);   /* clover blur 2px down & left */
 }
 .chain-art .chain-bead[data-pulse-shape="pill"]:not(.decorative)::before {
-  transform: translate(1px, -4px);   /* key blur ~4px up & 1px right */
+  transform: translate(1px, -9px);   /* key blur ~9px up & 1px right */
 }
 /* Key halo a touch lighter behind the key art. When the key is selected the
-   bead is scaled 1.62x, which would amplify the (1px,-4px) nudge above — divide
-   it by the scale so the on-screen offset stays ~(1px, -4px). */
+   bead is scaled 1.62x, which would amplify the (1px,-9px) nudge above — divide
+   it by the scale so the on-screen offset stays ~(1px, -9px). */
 .chain-art .chain-bead.current[data-pulse-shape="pill"]::before {
   opacity: 0.85;
-  transform: translate(0.62px, -2.47px);
+  transform: translate(0.62px, -5.56px);
 }
 
 /* CURRENT (selected) bead — enlarged via transform (no filter on the image,
@@ -466,7 +471,7 @@
 .chain-art .chain-bead.current::after {
   content: "";
   position: absolute;
-  inset: 1px;                 /* ring sits ~2px smaller than the bead edge */
+  inset: 1.5px;               /* ring sits ~3px smaller than the bead edge */
   pointer-events: none;
   animation: bead-pulse-ring 1.8s ease-in-out infinite;
   border: 1.5px solid rgba(0,136,255,0.75);
@@ -666,7 +671,7 @@
   pointer-events: none;
 }
 .unravel-hint {
-  margin: 0 0 0 -4px;
+  margin: 0 0 0 8px;
   font-family: var(--app-font-body);
   font-size: 0.75rem;
   letter-spacing: 0.04em;
