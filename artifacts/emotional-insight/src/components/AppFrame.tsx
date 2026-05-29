@@ -4,8 +4,8 @@ import beadBlue from "@assets/Frame_27_1779764468101.svg";
 import beadClover from "@assets/Frame_18_1779764468100.svg";
 import beadPink from "@assets/Frame_26_1779764468101.svg";
 import beadKey from "@assets/Frame_16_1779764468096.svg";
-import knotA from "@assets/Frame_35_1780016696792.svg";
-import knotB from "@assets/Frame_37_1780016696794.svg";
+import knotA from "@assets/Frame_35_1780019146363.svg";
+import knotB from "@assets/Frame_37_1780019146358.svg";
 
 /* Bead images in step order: clear, blue, clover, pink, key, clear (6 beads) */
 const BEAD_IMAGES = [

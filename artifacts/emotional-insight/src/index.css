@@ -171,17 +171,16 @@
   height: 100%;
   object-fit: contain;
 }
-.knot-a { animation: knot-fade-a 1.2s ease-in-out infinite; }
-.knot-b { animation: knot-fade-b 1.2s ease-in-out infinite; }
-@keyframes knot-fade-a {
-  0%, 45%   { opacity: 1; }
-  55%, 95%  { opacity: 0; }
-  100%      { opacity: 1; }
+/* Instant hard switch between the two frames — no crossfade. */
+.knot-a { animation: knot-switch-a 1.2s steps(1, end) infinite; }
+.knot-b { animation: knot-switch-b 1.2s steps(1, end) infinite; }
+@keyframes knot-switch-a {
+  0%   { opacity: 1; }
+  50%  { opacity: 0; }
 }
-@keyframes knot-fade-b {
-  0%, 45%   { opacity: 0; }
-  55%, 95%  { opacity: 1; }
-  100%      { opacity: 0; }
+@keyframes knot-switch-b {
+  0%   { opacity: 0; }
+  50%  { opacity: 1; }
 }
 
 /* ── Selection diamonds (chip list) ────────────────────────────────────────── */
