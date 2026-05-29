@@ -97,9 +97,9 @@ export function ChainArt({ currentStage, animateInitial, onBeadClick }: ChainArt
         alt=""
         aria-hidden
         className="chain-string"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
+        initial={animateInitial ? { opacity: 0, y: -8 } : { opacity: 0 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: animateInitial ? 0.35 : 0.5 }}
       />
 
       {BEADS.map((b, i) => {

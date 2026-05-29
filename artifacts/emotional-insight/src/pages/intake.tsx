@@ -141,7 +141,7 @@ export function IntakePage() {
           animate={{ opacity: 1 }}
           style={{ fontFamily: "var(--app-font-heading)", fontSize: "1.25rem", color: "#1d2e48", textAlign: "center", margin: 0 }}
         >
-          a moment to find what's underneath
+          A moment to find what's underneath
           <span className="loading-ellipsis" aria-hidden />
         </motion.p>
       </AppFrame>

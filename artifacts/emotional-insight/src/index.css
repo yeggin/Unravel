@@ -399,12 +399,12 @@
   z-index: -1;
   pointer-events: none;
 }
-/* PAST (visited) clickable beads — soft STILL glow, smaller/tighter than the
-   current and next beads so completed stages read as quietly "done". */
+/* PAST (visited) clickable beads — clear STILL (non-pulsing) outer glow so
+   completed stages still read as clickable, just quieter than current/next. */
 .chain-art .chain-bead.past:not(.decorative)::before {
-  inset: 20%;
-  filter: blur(5px);
-  background: rgba(0,136,255,0.38);
+  inset: 8%;
+  filter: blur(6px);
+  background: rgba(0,136,255,0.45);
 }
 /* NEXT clickable bead — same glow, gently pulsing in intensity (opacity only,
    so nothing re-rasterizes the bead). */
@@ -437,11 +437,26 @@
   50%      { opacity: 1;   }
 }
 
+/* Per-charm halo nudges (apply in any state) to centre the blur on the art. */
+.chain-art .chain-bead[data-bead-kind="clover"]:not(.decorative)::before {
+  transform: translate(-2px, 2px);   /* clover blur 2px down & left */
+}
+.chain-art .chain-bead[data-pulse-shape="pill"]:not(.decorative)::before {
+  transform: translate(1px, -4px);   /* key blur ~4px up & 1px right */
+}
+/* Key halo a touch lighter behind the key art. When the key is selected the
+   bead is scaled 1.62x, which would amplify the (1px,-4px) nudge above — divide
+   it by the scale so the on-screen offset stays ~(1px, -4px). */
+.chain-art .chain-bead.current[data-pulse-shape="pill"]::before {
+  opacity: 0.85;
+  transform: translate(0.62px, -2.47px);
+}
+
 /* CURRENT (selected) bead — enlarged via transform (no filter on the image,
    so the SVG re-rasterizes crisply at the larger size) + stronger halo +
    pulsing ring hugging the bead. */
 .chain-art .chain-bead.current {
-  transform: scale(1.35);
+  transform: scale(1.62);
   z-index: 2;
 }
 .chain-art .chain-bead.current::before {
@@ -451,7 +466,7 @@
 .chain-art .chain-bead.current::after {
   content: "";
   position: absolute;
-  inset: 0;                   /* ring hugs the bead edge */
+  inset: 1px;                 /* ring sits ~2px smaller than the bead edge */
   pointer-events: none;
   animation: bead-pulse-ring 1.8s ease-in-out infinite;
   border: 1.5px solid rgba(0,136,255,0.75);
@@ -651,7 +666,7 @@
   pointer-events: none;
 }
 .unravel-hint {
-  margin: 0;
+  margin: 0 0 0 -4px;
   font-family: var(--app-font-body);
   font-size: 0.75rem;
   letter-spacing: 0.04em;
