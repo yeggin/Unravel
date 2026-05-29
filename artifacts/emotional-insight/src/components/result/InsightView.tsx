@@ -18,7 +18,7 @@ const BLUE = "#0088ff";
  * Output flow — 6 chain stages, in order:
  *   0  Emotion            — chain reveal animation
  *   1  Why is this happening — collapsible boxes (CBT/IFS/NVC sources)
- *   2  Take a breath      — intermission breathing knot loop animation
+ *   2  Take a breath      — intermission breathing quatrefoil animation
  *   3  A different angle  — current pattern vs. actual truth
  *   4  What you can do    — three timeframe pills (right now / today / this week)
  *   5  Take it with you   — affirmation + CTAs
